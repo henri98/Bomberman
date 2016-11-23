@@ -85,8 +85,5 @@ bool nunchuck_get_data(struct buf *buffer)
 
   nunchuck_request(); // Request new data
 
-  if (count >= 5)
-    return true; // Success
-
-  return false; // Fail
+  return (count <= 5) ? true : false; // Success / Fail
 }
