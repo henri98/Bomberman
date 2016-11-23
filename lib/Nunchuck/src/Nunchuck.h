@@ -8,6 +8,7 @@
 
 #define NUNCHUCK_ADDR 0x52 // The Nunchuck's address
 
+// This struct is used to represent the Nunchuck's data
 typedef struct buf {
     bool zButton;
     bool cButton;
@@ -25,5 +26,9 @@ typedef struct buf {
 
 } buf;
 
+// This function should be called before the Nunchuck is used
 void nunchuck_init();
+
+// This function will request data from the Nunchuck and
+// put it in the given struct
 bool nunchuck_get_data(struct buf *buffer);

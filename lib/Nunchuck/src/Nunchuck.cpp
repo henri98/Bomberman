@@ -37,35 +37,37 @@ bool nunchuck_get_data(struct buf *buffer)
   uint8_t count = 0;
   Wire.requestFrom(NUNCHUCK_ADDR, 6);
 
-  while (Wire.available()) {
+  while (Wire.available())
+  {
 
-    switch (count) {
+    switch (count)
+    {
 
 #if USE_NUNCHUCK_JOYSTICK
-      case 0:
+      case 0: // X Joystick
         buffer->xJoystick = nunchuck_decode_byte(Wire.read());
         break;
 
-      case 1:
+      case 1: // Y Joystick
         buffer->yJoystick = nunchuck_decode_byte(Wire.read());
         break;
 #endif
 
 #if USE_NUNCHUCK_MOVEMENT
-      case 2:
+      case 2: // X Acceleration
         buffer->xAccel = nunchuck_decode_byte(Wire.read());
         break;
 
-      case 3:
+      case 3: // Y Acceleration
         buffer->yAccel = nunchuck_decode_byte(Wire.read());
         break;
 
-      case 4:
+      case 4: // Z Acceleration
         buffer->zAccel = nunchuck_decode_byte(Wire.read());
         break;
 #endif
 
-      case 5:
+      case 5: // C / Z Buttons
       {
         char tempChar = (char) nunchuck_decode_byte(Wire.read());
         buffer->zButton = ((tempChar >> 0) & 1) ? false : true;
