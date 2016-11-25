@@ -2,17 +2,15 @@
 #include <MI0283QT9.h>
 #include <Nunchuck.h>
 
-//MI0283QT9 Adapter v1
+// MI0283QT9 Adapter v1
 MI0283QT9 lcd;
 
 int main(int argc, char const *argv[])
 {
 	int centerX = 128;
 	int centerY = 134;
-	int currentX = 20;
-	int currentY = 20;
-	int oldX;
-	int oldY;
+	int currentX = 150;
+	int currentY = 110;
 
 	// init arduino library
 	init();
@@ -27,14 +25,11 @@ int main(int argc, char const *argv[])
 	lcd.begin();
 	lcd.led(100);
 
-	//clear screen
+	// clear screen
 	lcd.fillScreen(RGB(0, 0, 0));
 
-
-	lcd.fillRect(20, 20, 20, 20, RGB(0, 0, 0));
-
-
-
+	// black square startposition
+	lcd.fillRect(150, 110, 20, 20, RGB(255, 0, 0));
 
 	while (true)
 	{
@@ -54,66 +49,42 @@ int main(int argc, char const *argv[])
 		Serial.print("\t");
 		Serial.print(buffer->yJoystick);
 
-		// Serial.print("\t");
-		// Serial.print(buffer->xAccel);
-		//
-		// Serial.print("\t");
-		// Serial.print(buffer->yAccel);
-		//
-		// Serial.print("\t");
-		// Serial.print(buffer->zAccel);
 
-		//rechts
-		if (buffer->xJoystick > centerX + 20 && currentX < 280)
+		// controller to left
+		if (buffer->xJoystick < centerX - 40 && currentX > 0)
 		{
+			lcd.drawLine(currentX - 1, currentY, currentX - 1, currentY + 19, RGB(255, 0, 0));
+			lcd.drawLine(currentX + 19, currentY, currentX + 19, currentY + 19, RGB(0, 0, 0));
+			currentX = currentX - 1;
+		}
 
+		// controller to right
+		if (buffer->xJoystick > centerX + 40 && currentX < 300)
+		{
 			lcd.drawLine(currentX + 20, currentY, currentX + 20, currentY + 19, RGB(255, 0, 0));
 			lcd.drawLine(currentX, currentY, currentX, currentY + 19, RGB(0, 0, 0));
 			currentX = currentX + 1;
 		}
 
-		// links
-		if (buffer->xJoystick < centerX - 20 && currentX > 20)
+		// controller up
+		if (buffer->yJoystick > centerY + 40 && currentY > 0)
 		{
-
-			lcd.drawLine(currentX, currentY, currentX, currentY + 19, RGB(0, 255, 0));
-			lcd.drawLine(currentX + 19, currentY, currentX + 19, currentY + 19, RGB(0, 0, 0));
-			currentX = currentX - 1;
+			lcd.drawLine(currentX, currentY - 1, currentX + 19, currentY - 1, RGB(255, 0, 0));
+			lcd.drawLine(currentX, currentY + 19, currentX + 19, currentY + 19, RGB(0, 0, 0));
+			currentY = currentY - 1;
 		}
 
-		// omlaag
-		if (buffer->yJoystick < centerY - 20 && currentY < 200)
+		// controller down
+		if (buffer->yJoystick < centerY - 40 && currentY < 220)
 		{
-			lcd.drawLine(currentX, currentY + 20, currentX + 19, currentY + 20, RGB(0, 0, 255));
+			lcd.drawLine(currentX, currentY + 20, currentX + 19, currentY + 20, RGB(255, 0, 0));
 			lcd.drawLine(currentX, currentY, currentX + 19, currentY, RGB(0, 0, 0));
 			currentY = currentY + 1;
 		}
 
-		// omhoog
-		if (buffer->yJoystick > centerY + 20 && currentY > 20)
-		{
-			lcd.drawLine(currentX, currentY - 1, currentX + 19, currentY - 1, RGB(0, 255, 255));
-			lcd.drawLine(currentX, currentY + 19, currentX + 19, currentY + 19, RGB(0, 0, 0));
-
-			currentY = currentY - 1;
-		}
-
-
-		/*	for (int i = 0; i <= 300; i++)
-			{
-				lcd.drawLine(i + 20, 20, i + 20, 39, RGB(0, 0, 0));
-				lcd.drawLine(i, 20, i, 39, RGB(255, 255, 255));
-			}
-
-			for (int i = 300; i >= 0; i--)
-			{
-				lcd.drawLine(i + 20, 20, i + 20, 39, RGB(255, 255, 255));
-				lcd.drawLine(i, 20, i, 39, RGB(0, 0, 0));
-			}*/
-
 		Serial.println("");
-		free(buffer);
 
+		free(buffer);
 	};
 }
 
