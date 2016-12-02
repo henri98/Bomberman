@@ -21,7 +21,7 @@ init_timer0();
 void
 init_ir_receiver();
 void
-init_ir_sender();
+init_ir_sender(uint8_t wire);
 void
 byte_to_send(unsigned char c);
 /* struct with all the status parameters */
