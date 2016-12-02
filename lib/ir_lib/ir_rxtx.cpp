@@ -1,6 +1,5 @@
 #include "ir_lib.h"
 
-
 // count every 10 microseconds
 volatile unsigned long counter = 0;
 
@@ -9,7 +8,7 @@ volatile unsigned char send_signal        = 0;
 volatile unsigned long send_pulse_width   = 0;
 volatile unsigned long send_pulse_started = 0;
 volatile unsigned char send_byte = 'a'; // byte to send
-volatile unsigned char current_byte_sended = 0;
+volatile unsigned char current_byte_send = 0;
 
 // receive
 volatile unsigned long receive_pulse_started    = 0;
@@ -23,7 +22,7 @@ void byte_to_send(unsigned char i)
 {
     send_byte = i;
     //  Serial.println(i);
-    current_byte_sended = 1;
+    current_byte_send = 1;
 }
 
 //  Function to init Timer0
@@ -66,7 +65,7 @@ void init_ir_sender()
 ISR(TIMER0_COMPA_vect)
 {
     counter++;
-    if (current_byte_sended || send_signal) {
+    if (current_byte_send || send_signal) {
         // send data
         if (counter - send_pulse_started >= send_pulse_width) {
             if (send_signal % 2) {
@@ -81,7 +80,7 @@ ISR(TIMER0_COMPA_vect)
                     send_pulse_started = counter;
                     send_pulse_width   = START_SIGNAL;
                     send_signal++;
-                    current_byte_sended = 0;
+                    current_byte_send = 0;
                 } else if (send_signal == 18) {
                     // stop signal
                     TCCR2A |= (_BV(COM2B1)); // Enable pin 3 PWM output --> turn on IR led
@@ -90,7 +89,7 @@ ISR(TIMER0_COMPA_vect)
                     send_signal++;
                 } else if (send_signal == 20) {
                     send_signal         = 0;
-                    current_byte_sended = 0;
+                    current_byte_send = 0;
                 } else {
                     // data bit
                     TCCR2A |= (_BV(COM2B1)); // Enable pin 3 PWM output --> turn on IR led
