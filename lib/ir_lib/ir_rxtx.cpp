@@ -48,6 +48,7 @@ void init_ir_receiver()
 }
 
 // Function to init the IR sender
+// When [wire] is non-zero, the protocol will use the wires instead of IR
 void init_ir_sender(uint8_t wire)
 {
   pinMode(3, OUTPUT);     // enable pin 3 as output for ir led //ARDUINO.H
@@ -108,91 +109,16 @@ ISR(TIMER0_COMPA_vect)
                 {
                   // data bit
                   TCCR2A |= (_BV(COM2B1));   // Enable pin 3 PWM output --> turn on IR led
-                  switch (send_signal)
+
+                  if ( (send_byte >> ((send_signal / 2) - 1)) & 1)
                     {
-                    case 2:
-                      if ((send_byte >> 0) & 1)
-                        {
-                          send_pulse_width = HIGH_BIT;
-                        }
-                      else
-                        {
-                          send_pulse_width = LOW_BIT;
-                        }
-                      break;
-                    case 4:
-                      if ((send_byte >> 1) & 1)
-                        {
-                          send_pulse_width = HIGH_BIT;
-                        }
-                      else
-                        {
-                          send_pulse_width = LOW_BIT;
-                        }
-                      break;
-                    case 6:
-                      if ((send_byte >> 2) & 1)
-                        {
-                          send_pulse_width = HIGH_BIT;
-                        }
-                      else
-                        {
-                          send_pulse_width = LOW_BIT;
-                        }
-                      break;
-                    case 8:
-                      if ((send_byte >> 3) & 1)
-                        {
-                          send_pulse_width = HIGH_BIT;
-                        }
-                      else
-                        {
-                          send_pulse_width = LOW_BIT;
-                        }
-                      break;
-                    case 10:
-                      if ((send_byte >> 4) & 1)
-                        {
-                          send_pulse_width = HIGH_BIT;
-                        }
-                      else
-                        {
-                          send_pulse_width = LOW_BIT;
-                        }
-                      break;
-                    case 12:
-                      if ((send_byte >> 5) & 1)
-                        {
-                          send_pulse_width = HIGH_BIT;
-                        }
-                      else
-                        {
-                          send_pulse_width = LOW_BIT;
-                        }
-                      break;
-                    case 14:
-                      if ((send_byte >> 6) & 1)
-                        {
-                          send_pulse_width = HIGH_BIT;
-                        }
-                      else
-                        {
-                          send_pulse_width = LOW_BIT;
-                        }
-                      break;
-                    case 16:
-                      if ((send_byte >> 7) & 1)
-                        {
-                          send_pulse_width = HIGH_BIT;
-                        }
-                      else
-                        {
-                          send_pulse_width = LOW_BIT;
-                        }
-                      break;
-                    default:
-                      break;
+                      send_pulse_width = HIGH_BIT;
                     }
+                  else
+                    {
+                      send_pulse_width = LOW_BIT;
+                    }
+
                   send_pulse_started = counter;
                   send_signal++;
                 }
@@ -222,7 +148,8 @@ ISR(PCINT0_vect)
       if (receive_signal_width > (STOP_SIGNAL - 5) && receive_signal_width < (STOP_SIGNAL + 5))
         {
           // stop
-          Serial.write(receive_byte);
+          Serial.println(receive_byte);
+
           receive_transfer_started = 0x0;
           receive_bit_counter      = 0x0;
           receive_byte = 0x0;
