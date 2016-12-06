@@ -12,6 +12,7 @@ volatile unsigned char send_byte = 'a'; // byte to send
 volatile unsigned char current_byte_send = 0;
 
 // receive
+Queue *bytesReceived;
 volatile unsigned long receive_pulse_started    = 0;
 volatile unsigned long receive_pulse_stoped     = 0;
 volatile unsigned long receive_signal_width     = 0;
@@ -19,19 +20,40 @@ volatile unsigned char receive_transfer_started = 0x0;
 volatile unsigned char receive_bit_counter      = 0x0;
 volatile unsigned char receive_byte = 0x0; // byte to receive
 
+/**
+ * This should be called when a byte is added to the queue.
+ * This way the IR_LIB can do something with this if it wasn't busy already.
+ */
 void notifyByteAdded()
 {
-  if (isEmpty(bytesToSend) != 0)
+  tryToDequeueByte();
+}
+
+/**
+ * This will try to dequeue a byte, when it isn't doing anything.
+ */
+void tryToDequeueByte()
+{
+  if (current_byte_send == 0 && isEmpty(bytesToSend) != 0)
   {
-    send_byte = Dequeue(bytesToSend);
+    // Dequeue the new byte to send
+    send_byte = Dequeue(bytesToSend)->data.byte;
+    current_byte_send = 1;
   }
 }
 
-void byte_to_send(unsigned char i)
+/**
+ * Enqueue a received byte, and notify the CommLib of this.
+ * @param byte [description]
+ */
+void EnqueueReceivedByte(unsigned char byte)
 {
-  send_byte = i;
-  //  Serial.println(i);
-  current_byte_send = 1;
+  NODE *newNode = (NODE *)malloc(sizeof(NODE));
+  newNode->data.byte = byte; // TODO: Is dit goed zo?
+
+  Enqueue(bytesReceived, newNode);
+
+  // TODO: Notify CommLib of this queued byte!
 }
 
 //  Function to init Timer0
@@ -45,9 +67,14 @@ void init_timer0()
   TCCR0B = (1 << CS01) | (1 << CS00);
 }
 
-// Function to init the IR receiver
-void init_ir_receiver()
+/**
+ * Initialise the IR receiver
+ * @param bytesReceived The queue to put the received bytes in.
+ */
+void init_ir_receiver(Queue *bytesReceived)
 {
+  bytesReceived = bytesReceived;
+
   cli();
   DDRB   |= (0 << DDB3);
   PORTB  |= (1 << PORTB3);
@@ -56,9 +83,11 @@ void init_ir_receiver()
   sei();
 }
 
-// Function to init the IR sender
-// When [wire] is non-zero, the protocol will use the wires instead of IR
-// bytesToSend is the queue containing all the bytes to be sent
+/**
+ * Initialise the IR sender.
+ * @param wire        Defines if IR or Wires will be used.
+ * @param bytesToSend The queue that contains bytes to send.
+ */
 void init_ir_sender(uint8_t wire, Queue *bytesToSend)
 {
   bytesToSend = bytesToSend;
@@ -104,7 +133,7 @@ ISR(TIMER0_COMPA_vect)
           send_pulse_started = counter;
           send_pulse_width   = START_SIGNAL;
           send_signal++;
-          current_byte_send = 0;
+          // current_byte_send = 0;
         }
         else if (send_signal == 18)
         {
@@ -118,6 +147,7 @@ ISR(TIMER0_COMPA_vect)
         {
           send_signal         = 0;
           current_byte_send = 0;
+          tryToDequeueByte();
         }
         else
         {
@@ -163,7 +193,7 @@ ISR(PCINT0_vect)
     if (receive_signal_width > (STOP_SIGNAL - 5) && receive_signal_width < (STOP_SIGNAL + 5))
     {
       // stop
-      Serial.println(receive_byte);
+      EnqueueReceivedByte((unsigned char)receive_byte);
 
       receive_transfer_started = 0x0;
       receive_bit_counter      = 0x0;

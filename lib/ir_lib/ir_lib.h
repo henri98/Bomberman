@@ -20,12 +20,6 @@
 void init_timer0();
 void init_ir_receiver();
 void init_ir_sender(uint8_t wire, Queue *bytesToSend);
-void byte_to_send(unsigned char c);
 void notifyByteAdded();
-/* struct with all the status parameters */
-// typedef struct
-// {
-//    int *send_signal;
-//    int *send_pulse_width;
-//    int *send_pulse_started;
-// } Status;
+void tryToDequeueByte();
+void EnqueueReceivedByte(unsigned char byte);
