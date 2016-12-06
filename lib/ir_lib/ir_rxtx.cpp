@@ -4,6 +4,7 @@
 volatile unsigned long counter = 0;
 
 // transmit
+Queue *bytesToSend;
 volatile unsigned char send_signal        = 0;
 volatile unsigned long send_pulse_width   = 0;
 volatile unsigned long send_pulse_started = 0;
@@ -17,6 +18,14 @@ volatile unsigned long receive_signal_width     = 0;
 volatile unsigned char receive_transfer_started = 0x0;
 volatile unsigned char receive_bit_counter      = 0x0;
 volatile unsigned char receive_byte = 0x0; // byte to receive
+
+void notifyByteAdded()
+{
+  if (isEmpty(bytesToSend) != 0)
+  {
+    send_byte = Dequeue(bytesToSend);
+  }
+}
 
 void byte_to_send(unsigned char i)
 {
@@ -49,8 +58,11 @@ void init_ir_receiver()
 
 // Function to init the IR sender
 // When [wire] is non-zero, the protocol will use the wires instead of IR
-void init_ir_sender(uint8_t wire)
+// bytesToSend is the queue containing all the bytes to be sent
+void init_ir_sender(uint8_t wire, Queue *bytesToSend)
 {
+  bytesToSend = bytesToSend;
+
   // @TODO: Replace this with AVR-code !
   pinMode(3, OUTPUT);     // enable pin 3 as output for ir led //ARDUINO.H
   digitalWrite(3, LOW);   // When not sending PWM, we want it low //ARDUINO.H

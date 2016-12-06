@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include "QueueLib.h"
 #include <Arduino.h>
 
 /* This header file defines all of the signal lengths. */
@@ -18,8 +19,9 @@
 /* Initialise registers timer 0 */
 void init_timer0();
 void init_ir_receiver();
-void init_ir_sender(uint8_t wire);
+void init_ir_sender(uint8_t wire, Queue *bytesToSend);
 void byte_to_send(unsigned char c);
+void notifyByteAdded();
 /* struct with all the status parameters */
 // typedef struct
 // {
