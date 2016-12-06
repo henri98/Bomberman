@@ -3,7 +3,7 @@
 
 /* a link in the queue, holds the info and point to the next Node*/
 typedef struct {
-	unsigned char byte;
+	char byte;
 } DATA;
 
 typedef struct Node_t {
