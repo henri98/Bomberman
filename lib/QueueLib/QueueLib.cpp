@@ -28,11 +28,11 @@ void DestructQueue(Queue *queue) {
 int Enqueue(Queue *pQueue, NODE *item) {
 	/* Bad parameter */
 	if ((pQueue == NULL) || (item == NULL)) {
-		return FALSE;
+		return 0;
 	}
 	// if(pQueue->limit != 0)
 	if (pQueue->size >= pQueue->limit) {
-		return FALSE;
+		return 0;
 	}
 	/*the queue is empty*/
 	item->prev = NULL;
@@ -47,7 +47,7 @@ int Enqueue(Queue *pQueue, NODE *item) {
 		pQueue->tail = item;
 	}
 	pQueue->size++;
-	return TRUE;
+	return 1;
 }
 
 NODE * Dequeue(Queue *pQueue) {
@@ -63,12 +63,12 @@ NODE * Dequeue(Queue *pQueue) {
 
 int isEmpty(Queue* pQueue) {
 	if (pQueue == NULL) {
-		return FALSE;
+		return 0;
 	}
 	if (pQueue->size == 0) {
-		return TRUE;
+		return 1;
 	}
 	else {
-		return FALSE;
+		return 0;
 	}
 }
