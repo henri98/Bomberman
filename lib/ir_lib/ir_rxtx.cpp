@@ -51,6 +51,7 @@ void init_ir_receiver()
 // When [wire] is non-zero, the protocol will use the wires instead of IR
 void init_ir_sender(uint8_t wire)
 {
+  // @TODO: Replace this with AVR-code !
   pinMode(3, OUTPUT);     // enable pin 3 as output for ir led //ARDUINO.H
   digitalWrite(3, LOW);   // When not sending PWM, we want it low //ARDUINO.H
 
@@ -58,6 +59,7 @@ void init_ir_sender(uint8_t wire)
   TCCR2A = _BV(WGM20);
   TCCR2B = _BV(WGM22) | _BV(CS20);
 
+  // Only set the 38KHz when communicating over IR.
   if (wire == 0)
   {
     // frequency and duty cycle

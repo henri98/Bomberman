@@ -16,14 +16,10 @@
 #define QUEUE_LENGTH 30
 
 /* Initialise registers timer 0 */
-void
-init_timer0();
-void
-init_ir_receiver();
-void
-init_ir_sender(uint8_t wire);
-void
-byte_to_send(unsigned char c);
+void init_timer0();
+void init_ir_receiver();
+void init_ir_sender(uint8_t wire);
+void byte_to_send(unsigned char c);
 /* struct with all the status parameters */
 // typedef struct
 // {
