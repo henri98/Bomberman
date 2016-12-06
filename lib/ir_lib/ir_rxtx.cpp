@@ -53,6 +53,8 @@ void EnqueueReceivedByte(unsigned char byte)
 
   Enqueue(bytesReceived, newNode);
 
+  free(newNode);
+
   // TODO: Notify CommLib of this queued byte!
 }
 
