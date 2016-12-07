@@ -4,15 +4,21 @@
 volatile unsigned long counter = 0;
 
 // transmit
-Queue *bytesToSend;
+Queue *bytesToSendQueue;
 volatile unsigned char send_signal        = 0;
 volatile unsigned long send_pulse_width   = 0;
 volatile unsigned long send_pulse_started = 0;
 volatile unsigned char send_byte = 'a'; // byte to send
 volatile unsigned char current_byte_send = 0;
 
+// This can store a pointer to a function.
+// This can be called from here which will be executed somewhere else.
+// Using this mechanism it can notify something else that a byte is received.
+typedef void (*receivedCallback)(void);
+receivedCallback callbackFunc;
+
 // receive
-Queue *bytesReceived;
+Queue *bytesReceivedQueue;
 volatile unsigned long receive_pulse_started    = 0;
 volatile unsigned long receive_pulse_stoped     = 0;
 volatile unsigned long receive_signal_width     = 0;
@@ -21,41 +27,37 @@ volatile unsigned char receive_bit_counter      = 0x0;
 volatile unsigned char receive_byte = 0x0; // byte to receive
 
 /**
- * This should be called when a byte is added to the queue.
- * This way the IR_LIB can do something with this if it wasn't busy already.
- */
-void notifyByteAdded()
-{
-  tryToDequeueByte();
-}
-
-/**
  * This will try to dequeue a byte, when it isn't doing anything.
  */
 void tryToDequeueByte()
 {
-  if (current_byte_send == 0 && isEmpty(bytesToSend) != 0)
+  if (current_byte_send == 0 && !isEmpty(bytesToSendQueue))
   {
-    // Dequeue the new byte to send
-    send_byte = Dequeue(bytesToSend)->data.byte;
+    // Dequeue the node to send
+    NODE *nodeToSend = (NODE *)malloc(sizeof(NODE));
+    nodeToSend = Dequeue(bytesToSendQueue);
+
+    // Get the byte to send from the node
+    send_byte = nodeToSend->data.byte;
     current_byte_send = 1;
+
+    free(nodeToSend);
   }
 }
 
 /**
- * Enqueue a received byte, and notify the CommLib of this.
- * @param byte [description]
+ * Add the received byte to the received-queue
+ * @param byte The byte that was received.
  */
 void EnqueueReceivedByte(unsigned char byte)
 {
   NODE *newNode = (NODE *)malloc(sizeof(NODE));
-  newNode->data.byte = byte; // TODO: Is dit goed zo?
+  newNode->data.byte = byte;
 
-  Enqueue(bytesReceived, newNode);
+  Enqueue(bytesReceivedQueue, newNode);
 
-  free(newNode);
-
-  // TODO: Notify CommLib of this queued byte!
+  // Call the callback-function, to notify something else of the queued byte.
+  callbackFunc();
 }
 
 //  Function to init Timer0
@@ -70,12 +72,14 @@ void init_timer0()
 }
 
 /**
- * Initialise the IR receiver
- * @param bytesReceived The queue to put the received bytes in.
+ * Initialise the receiver.
+ * @param bytesReceived The queue to enqueue the received bytes to.
+ * @param callback      The function that should be called when a byte is queued.
  */
-void init_ir_receiver(Queue *bytesReceived)
+void init_ir_receiver(Queue *bytesReceived, void (*callback)(void))
 {
-  bytesReceived = bytesReceived;
+  callbackFunc = callback;
+  bytesReceivedQueue = bytesReceived;
 
   cli();
   DDRB   |= (0 << DDB3);
@@ -86,13 +90,13 @@ void init_ir_receiver(Queue *bytesReceived)
 }
 
 /**
- * Initialise the IR sender.
- * @param wire        Defines if IR or Wires will be used.
- * @param bytesToSend The queue that contains bytes to send.
+ * Initialise the sender.
+ * @param wire              Defines if IR or Wires will be used.
+ * @param bytesToSendQueue  The queue that contains bytes to send.
  */
 void init_ir_sender(uint8_t wire, Queue *bytesToSend)
 {
-  bytesToSend = bytesToSend;
+  bytesToSendQueue = bytesToSend;
 
   // @TODO: Replace this with AVR-code !
   pinMode(3, OUTPUT);     // enable pin 3 as output for ir led //ARDUINO.H
