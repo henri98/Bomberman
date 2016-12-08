@@ -1,18 +1,15 @@
 #include <Arduino.h>
 #include <MI0283QT9.h>
 #include <game.h>
-#include "ir_lib.h"
-
+#include <IRCommLib.h>
 MI0283QT9 lcd;
 Player *player1;
 
 
 int main()
 {
+  initIRCommLib();
   DDRB |= _BV(DDB5);
-  init_timer0();
-  init_ir_sender();
-//  init_ir_receiver();
   nunchuck_init();
   player1 = (Player *)malloc(sizeof(Player));
   init_display(lcd);

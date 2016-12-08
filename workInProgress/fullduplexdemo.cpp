@@ -1,6 +1,8 @@
 #include "ir_lib.h"
 #include "Arduino.h"
 
+// not working anymore!!
+
 int main(int argc, char const * argv[])
 {
   /* code */
@@ -9,7 +11,7 @@ int main(int argc, char const * argv[])
 
   Serial.begin(250000);
   init_timer0();
-  init_ir_sender();
+  init_ir_sender(1);
   init_ir_receiver();
   while (1)
     {
