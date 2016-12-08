@@ -271,13 +271,13 @@ void MI0283QT9::setOrientation(uint_least16_t o)
   uint_least8_t p;
 
   #define MEM_Y   (7) //MY row address order
-  #define MEM_X   (6) //MX column address order 
-  #define MEM_V   (5) //MV row / column exchange 
+  #define MEM_X   (6) //MX column address order
+  #define MEM_V   (5) //MV row / column exchange
   #define MEM_L   (4) //ML vertical refresh order
   #define MEM_H   (2) //MH horizontal refresh order
-  #define MEM_BGR (3) //RGB-BGR Order 
+  #define MEM_BGR (3) //RGB-BGR Order
 
-       if((o ==   9) || 
+       if((o ==   9) ||
           (o ==  90))
   {
     lcd_orientation = 90;
@@ -286,7 +286,7 @@ void MI0283QT9::setOrientation(uint_least16_t o)
     p = (1<<MEM_BGR) | (1<<MEM_X);
   }
 
-  else if((o ==  18) || 
+  else if((o ==  18) ||
           (o == 180))
   {
     lcd_orientation = 180;
@@ -295,8 +295,8 @@ void MI0283QT9::setOrientation(uint_least16_t o)
     p = (1<<MEM_BGR) | (1<<MEM_L) | (1<<MEM_V);
   }
 
-  else if((o ==  27) || 
-          (o ==  14) || 
+  else if((o ==  27) ||
+          (o ==  14) ||
           (o == 270))
   {
     lcd_orientation = 270;
@@ -450,7 +450,7 @@ uint_least8_t MI0283QT9::touchRead(void)
     }
     x >>= 2; //x/4
     y >>= 2; //y/4*/
-    
+
     //using 2 samples for x and y position
     ADSCS_ENABLE();
     //get X data
@@ -560,7 +560,7 @@ void MI0283QT9::touchStartCal(void)
 
   //calulate calibration matrix
   touchSetCal(lcd_points, tp_points);
-  
+
   //restore orientation
   setOrientation(o);
 
@@ -574,7 +574,7 @@ void MI0283QT9::touchStartCal(void)
 //-------------------- Private --------------------
 
 
-const uint8_t initdataQT9[] PROGMEM = 
+const uint8_t initdataQT9[] PROGMEM =
 {
   //0x40| 1, LCD_CMD_RESET,
   //0xC0|60, //60ms
