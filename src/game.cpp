@@ -71,7 +71,7 @@ void move_left(Player *player,MI0283QT9 lcd)
           lcd.drawLine(player->location_x * 20 - i, player->location_y * 20, player->location_x * 20 - i, player->location_y * 20 + 19, player->color);
           //remove line
           lcd.drawLine(player->location_x * 20 + 19 - i, player->location_y * 20, player->location_x * 20 + 19 - i, player->location_y * 20 + 19, background);
-          wait(5);
+          wait(10);
         }
       lcd.drawLine(player->location_x * 20 - 20, player->location_y * 20, player->location_x * 20 - 20, player->location_y * 20 + 19, player->color);
       player->location_x--;
@@ -88,7 +88,7 @@ void move_right(Player *player,MI0283QT9 lcd)
         {
           lcd.drawLine(player->location_x * 20 + 19 + i, player->location_y * 20, player->location_x * 20 + 19 + i, player->location_y * 20 + 19, player->color);
           lcd.drawLine(player->location_x * 20 + i, player->location_y * 20, player->location_x * 20 + i, player->location_y * 20 + 19, background);
-          wait(5);
+          wait(10);
         }
       lcd.drawLine(player->location_x * 20 + 19 + 20, player->location_y * 20, player->location_x * 20 + 19 + 20, player->location_y * 20 + 19, player->color);
       player->location_x++;
@@ -105,7 +105,7 @@ void move_down(Player *player,MI0283QT9 lcd)
         {
           lcd.drawLine(player->location_x * 20, player->location_y * 20 + 19 + i, player->location_x * 20 + 19, player->location_y * 20 + 19 + i, player->color);
           lcd.drawLine(player->location_x * 20, player->location_y * 20 + i, player->location_x * 20 + 19, player->location_y * 20 + i, background);
-          wait(5);
+          wait(10);
         }
       lcd.drawLine(player->location_x * 20, player->location_y * 20 + 19 + 20, player->location_x * 20 + 19, player->location_y * 20 + 19 + 20, player->color);
       player->location_y++;
@@ -122,7 +122,7 @@ void move_up(Player *player,MI0283QT9 lcd)
         {
           lcd.drawLine(player->location_x * 20, player->location_y * 20 - i, player->location_x * 20 + 19, player->location_y * 20 - i, player->color);
           lcd.drawLine(player->location_x * 20, player->location_y * 20 + 19 - i, player->location_x * 20 + 19, player->location_y * 20 + 19 - i,  background);
-          wait(5);
+          wait(10);
         }
       lcd.drawLine(player->location_x * 20, player->location_y * 20 - 20, player->location_x * 20 + 19, player->location_y * 20 - 20, player->color);
       player->location_y--;
@@ -152,6 +152,7 @@ void gameloop(Player *player, MI0283QT9 lcd)
       // struct buf *buffer;
       struct buf *buffer = (buf *)malloc(sizeof(struct buf));
       nunchuck_get_data(buffer);
+
       wait(10);
       //left
       if (buffer->xJoystick >= 34 && buffer->xJoystick <= 50 && buffer->yJoystick >= 98 && buffer->yJoystick <= 165)

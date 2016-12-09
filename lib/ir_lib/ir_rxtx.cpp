@@ -102,9 +102,13 @@ void init_ir_sender(uint8_t wire, Queue *bytesToSend)
   pinMode(3, OUTPUT);     // enable pin 3 as output for ir led //ARDUINO.H
   digitalWrite(3, LOW);   // When not sending PWM, we want it low //ARDUINO.H
 
+
   // prescaling
   TCCR2A = _BV(WGM20);
   TCCR2B = _BV(WGM22) | _BV(CS20);
+
+  //enable overflow interrupt on timer two
+  TIMSK2 = _BV(TOIE2);
 
   // Only set the 38KHz when communicating over IR.
   if (wire == 0)
