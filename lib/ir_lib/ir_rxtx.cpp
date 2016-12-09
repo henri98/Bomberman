@@ -101,11 +101,13 @@ void init_ir_sender(uint8_t wire, Queue *bytesToSend)
   DDRD |= (1 << PORTD3); // enable pin 3 as output for ir led
   PORTD &= ~(1 << PORTD3); // When not sending PWM, we want it low
 
+
   // prescaling
   TCCR2A = _BV(WGM20);
   TCCR2B = _BV(WGM22) | _BV(CS20);
 
   //enable overflow interrupt on timer two
+  // TODO: Fix that everything still works with this enabled.
   // TIMSK2 = _BV(TOIE2);
 
   // Only set the 38KHz when communicating over IR.
