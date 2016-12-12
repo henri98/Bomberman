@@ -3,21 +3,22 @@
 uint_least16_t background = RGB(103, 98, 96);
 volatile unsigned long overflow_counter = 0;
 
-char map_arr[12][14] = {
-  {'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w'},   // 0
-  {'w', 'w', 'n', 'w', 'n', 'w', 'n', 'n', 'n', 'n', 'n', 'w', 'w'},   // 1
-  {'w', 'n', 'n', 'n', 'n', 'w', 'n', 'n', 'n', 'n', 'n', 'n', 'w'},   // 2
-  {'w', 'w', 'w', 'w', 'n', 'w', 'n', 'n', 'n', 'n', 'n', 'n', 'w'},   // 3
-  {'w', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'w'},   // 4
-  {'w', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'w', 'n', 'n', 'n', 'w'},   // 5
-  {'w', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'w'},   // 6
-  {'w', 'n', 'n', 'w', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'w'},   // 7
-  {'w', 'n', 'n', 'w', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'w'},   // 8
-  {'w', 'n', 'w', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'w'},   // 9
-  {'w', 'w', 'n', 'n', 'n', 'w', 'n', 'n', 'n', 'n', 'n', 'n', 'w'},   // 10
-  {'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w'}    // 11
+char map_arr[14][12] = {
+  {'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w'},   // 0
+  {'w', 'w', 'w', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'w'},   // 1
+  {'w', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'w'},   // 2
+  {'w', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'w'},   // 3
+  {'w', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'w'},   // 4
+  {'w', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'w'},   // 5
+  {'w', 'n', 'n', 'w', 'w', 'w', 'n', 'n', 'n', 'n', 'n', 'w'},   // 6
+  {'w', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'w'},   // 7
+  {'w', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'w'},   // 8
+  {'w', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'w'},   // 9
+  {'w', 'n', 'n', 'n', 'n', 'w', 'w', 'w', 'n', 'n', 'n', 'w'},   //10
+  {'w', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'w'},     //11
+  {'w', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'w'},   // 12
+  {'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w'}    // 13
 };
-
 void generate_map()
 {
   // generate map....
@@ -44,15 +45,26 @@ void init_display(MI0283QT9 lcd)
 void load_map(MI0283QT9 lcd)
 {
   lcd.fillScreen(background);
-  for (size_t i = 0; i < 14; i++)
+  for (int y = 0; y < 12; y++)
     {
-      for (size_t j = 0; j < 12; j++)
+      for (int x = 0; x < 14; x++)
+      {
+        if (map_arr[x][y] == 'w')
         {
-          if (map_arr[j][i] == 'w')
-            {
-              lcd.fillRect(i*20,j*20,20,20,RGB(45,45, 45));
-            }
+          lcd.fillRect(x * 20, y * 20, 20, 4, RGB(139,0,0));
+          lcd.drawLine(x * 20 + 19, y*20,  x * 20 + 19, y*20 +4, RGB(0,0,0));
+          lcd.fillRect(x * 20, y * 20 +4, 20, 1, RGB(47,79,79));
+          lcd.fillRect(x * 20, y * 20 +5, 20, 4, RGB(139,0,0));
+          lcd.drawLine(x * 20 + 9, y*20 +5,  x * 20 + 9, y*20 +9, RGB(0,0,0));
+          lcd.fillRect(x * 20, y * 20 +9, 20, 1, RGB(47,79,79));
+          lcd.fillRect(x * 20, y * 20 +10, 20, 4, RGB(139,0,0));
+          lcd.drawLine(x * 20 + 19, y*20 + 10,  x * 20 + 19, y*20 +14, RGB(0,0,0));
+          lcd.fillRect(x * 20, y * 20 +14, 20, 1, RGB(47,79,79));
+          lcd.fillRect(x * 20, y * 20 +15, 20, 4, RGB(139,0,0));
+          lcd.drawLine(x * 20 + 9, y*20 + 15,  x * 20 + 9, y*20 +19, RGB(0,0,0));
+          lcd.fillRect(x * 20, y * 20 +19, 20, 1, RGB(47,79,79));
         }
+      }
     }
 }
 
