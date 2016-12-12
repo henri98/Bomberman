@@ -22,7 +22,7 @@ void initIRCommLib()
   // Send a pointer to the function byteWasReceived as argument.
   // This can now be called by the ir_lib.
   init_ir_receiver(receivedBytesQueue, &byteWasReceived);
-  init_ir_sender(1, sendBytesQueue);
+  init_ir_sender(0, sendBytesQueue);
 }
 
 void sendByte(unsigned char *byte)
@@ -36,16 +36,16 @@ void sendByte(unsigned char *byte)
 
 void sendPlayerPos(unsigned char *x, unsigned char *y)
 {
-  unsigned char temp = 0x11;
-  sendByte(&temp);
+  unsigned char type = PLAYER_POS;
+  sendByte(&type);
   sendByte(x);
   sendByte(y);
 }
 
 void sendBombPlaced(unsigned char *x, unsigned char *y, unsigned char *ID)
 {
-  unsigned char temp = 0x12;
-  sendByte(&temp);
+  unsigned char type = BOMB_PLACED;
+  sendByte(&type);
   sendByte(x);
   sendByte(y);
   sendByte(ID);
@@ -53,15 +53,15 @@ void sendBombPlaced(unsigned char *x, unsigned char *y, unsigned char *ID)
 
 void sendBombExploded(unsigned char *ID)
 {
-  unsigned char temp = 0x13;
-  sendByte(&temp);
+  unsigned char type = BOMB_EXPLODED;
+  sendByte(&type);
   sendByte(ID);
 }
 
 void sendScore(unsigned char *score)
 {
-  unsigned char temp = 0x14;
-  sendByte(&temp);
+  unsigned char type = SCORE;
+  sendByte(&type);
   sendByte(score);
 }
 

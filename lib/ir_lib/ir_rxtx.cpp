@@ -26,6 +26,8 @@ volatile unsigned char receive_transfer_started = 0x0;
 volatile unsigned char receive_bit_counter      = 0x0;
 volatile unsigned char receive_byte = 0x0; // byte to receive
 
+uint8_t usingWire;
+
 /**
  * This will try to dequeue a byte, when it isn't doing anything.
  */
@@ -96,27 +98,23 @@ void init_ir_receiver(Queue *bytesReceived, void (*callback)(void))
  */
 void init_ir_sender(uint8_t wire, Queue *bytesToSend)
 {
+  usingWire = wire;
   bytesToSendQueue = bytesToSend;
 
   DDRD |= (1 << PORTD3); // enable pin 3 as output for ir led
   PORTD &= ~(1 << PORTD3); // When not sending PWM, we want it low
-
 
   // prescaling
   TCCR2A = _BV(WGM20);
   TCCR2B = _BV(WGM22) | _BV(CS20);
 
   //enable overflow interrupt on timer two
-  // TODO: Fix that everything still works with this enabled.
-  // TIMSK2 = _BV(TOIE2);
+  TIMSK2 = _BV(TOIE2);
 
-  // Only set the 38KHz when communicating over IR.
-  if (wire == 0)
-  {
-    // frequency and duty cycle
-    OCR2A = F_CPU / 2 / KHZ / 1000;
-    OCR2B = OCR2A / 3;       // 33% duty cycle
-  }
+  // frequency and duty cycle for the 38KHz
+  OCR2A = F_CPU / 2 / KHZ / 1000;
+  OCR2B = OCR2A / 3;         // 33% duty cycle
+
 }
 
 ISR(TIMER0_COMPA_vect)
@@ -129,7 +127,14 @@ ISR(TIMER0_COMPA_vect)
     {
       if (send_signal % 2)
       {
-        TCCR2A &= ~(_BV(COM2B1));         // Disable pin 3 PWM output --> turn off IR led
+        if (usingWire == 0)
+        {
+          TCCR2A &= ~(_BV(COM2B1));       // Disable pin 3 PWM output --> turn off IR led
+        }
+        else
+        {
+          PORTD &= ~(1 << PORTD3);
+        }
         send_pulse_started = counter;
         send_pulse_width   = NO_SIGNAL;
         send_signal++;
@@ -139,7 +144,14 @@ ISR(TIMER0_COMPA_vect)
         if (send_signal == 0)
         {
           // start signal
-          TCCR2A |= (_BV(COM2B1));           // Enable pin 3 PWM output --> turn on IR led
+          if (usingWire == 0)
+          {
+            TCCR2A |= (_BV(COM2B1));         // Enable pin 3 PWM output --> turn on IR led
+          }
+          else
+          {
+            PORTD |= (1 << PORTD3);
+          }
           send_pulse_started = counter;
           send_pulse_width   = START_SIGNAL;
           send_signal++;
@@ -148,7 +160,14 @@ ISR(TIMER0_COMPA_vect)
         else if (send_signal == 18)
         {
           // stop signal
-          TCCR2A |= (_BV(COM2B1));           // Enable pin 3 PWM output --> turn on IR led
+          if (usingWire == 0)
+          {
+            TCCR2A |= (_BV(COM2B1));         // Enable pin 3 PWM output --> turn on IR led
+          }
+          else
+          {
+            PORTD |= (1 << PORTD3);
+          }
           send_pulse_started = counter;
           send_pulse_width   = STOP_SIGNAL;
           send_signal++;
@@ -162,7 +181,14 @@ ISR(TIMER0_COMPA_vect)
         else
         {
           // data bit
-          TCCR2A |= (_BV(COM2B1));           // Enable pin 3 PWM output --> turn on IR led
+          if (usingWire == 0)
+          {
+            TCCR2A |= (_BV(COM2B1));         // Enable pin 3 PWM output --> turn on IR led
+          }
+          else
+          {
+            PORTD |= (1 << PORTD3);
+          }
 
           if ((send_byte >> ((send_signal / 2) - 1)) & 1)
           {
