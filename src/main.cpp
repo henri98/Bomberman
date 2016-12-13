@@ -58,12 +58,13 @@ void initinit()
 
 int main()
 {
+  initIRCommLib();
   initinit();
   Serial.begin(250000);
   init_display(lcd);
   generate_map();
   load_map(lcd);
-  initIRCommLib();
+
 
   while (0)
     {

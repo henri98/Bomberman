@@ -84,10 +84,10 @@ void init_ir_receiver(Queue *bytesReceived, void (*callback)(void))
   bytesReceivedQueue = bytesReceived;
 
   cli();
-  DDRB   |= (0 << DDB3);
-  PORTB  |= (1 << PORTB3);
-  PCMSK0 |= (1 << PCINT3);
-  PCICR  |= (1 << PCIE0);
+  DDRD   |= (0 << DDD4);
+  PORTD  |= (1 << PORTD4);
+  PCMSK2 |= (1 << PCINT20);
+  PCICR  |= (1 << PCIE2);
   sei();
 }
 
@@ -207,8 +207,8 @@ ISR(TIMER1_COMPA_vect)
     }
 }
 
-// When interrupt on PIN 11 --> receive IR
-ISR(PCINT0_vect)
+// When interrupt on PIN 4 --> receive IR
+ISR(PCINT2_vect)
 {
   if (receive_pulse_started == 0)
     {
