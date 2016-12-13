@@ -5,17 +5,18 @@
 #include <GraphicsLib.h>
 #include <Arduino.h>
 #include <Nunchuck.h>
+#include <IRCommLib.h>
 
 
 typedef struct {
-  unsigned int location_x;
-  unsigned int location_y;
+  unsigned char location_x;
+  unsigned char location_y;
   unsigned long time_placed;
 } Bomb;
 
 typedef struct {
-  unsigned int location_x;
-  unsigned int location_y;
+  unsigned char location_x;
+  unsigned char location_y;
   unsigned int points;
   unsigned int lives;
   uint_least16_t color;
