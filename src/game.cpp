@@ -2,27 +2,90 @@
 
 static uint_least16_t background = RGB(103, 98, 96);
 
-// char map_arr[12][14] = {
-//   {'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w'},   // 0
-//   {'w', 'w', 'n', 'w', 'n', 'w', 'n', 'n', 'n', 'n', 'n', 'w', 'w'},   // 1
-//   {'w', 'n', 'n', 'n', 'n', 'w', 'n', 'n', 'n', 'n', 'n', 'n', 'w'},   // 2
-//   {'w', 'w', 'w', 'w', 'n', 'w', 'n', 'n', 'n', 'n', 'n', 'n', 'w'},   // 3
-//   {'w', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'w'},   // 4
-//   {'w', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'w', 'n', 'n', 'n', 'w'},   // 5
-//   {'w', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'w'},   // 6
-//   {'w', 'n', 'n', 'w', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'w'},   // 7
-//   {'w', 'n', 'n', 'w', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'w'},   // 8
-//   {'w', 'n', 'w', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'w'},   // 9
-//   {'w', 'w', 'n', 'n', 'n', 'w', 'n', 'n', 'n', 'n', 'n', 'n', 'w'},   // 10
-//   {'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w'}    // 11
-// };
-
 #define MAP_WIDTH         14
 #define MAP_HEIGHT        12
 #define SURROUND_WALLS    1
 #define WALL_EMPTY_RATIO  2
+#define BOMTIME           3 //seconds
 
 char map_arr[MAP_HEIGHT][MAP_WIDTH];
+
+MI0283QT9 lcd;
+Player *player1;
+Player *oponent;
+
+void initinit()
+{
+  // set timer 0 for display libary, this is a part of the arduino init() function
+  sei();
+  #if defined(TCCR0A) && defined(WGM01)
+  sbi(TCCR0A, WGM01);
+  sbi(TCCR0A, WGM00);
+  #endif
+
+  // set timer 0 prescale factor to 64
+  #if defined(__AVR_ATmega128__)
+  // CPU specific: different values for the ATmega128
+  sbi(TCCR0, CS02);
+  #elif defined(TCCR0) && defined(CS01) && defined(CS00)
+  // this combination is for the standard atmega8
+  sbi(TCCR0, CS01);
+  sbi(TCCR0, CS00);
+  #elif defined(TCCR0B) && defined(CS01) && defined(CS00)
+  // this combination is for the standard 168/328/1280/2560
+  sbi(TCCR0B, CS01);
+  sbi(TCCR0B, CS00);
+  #elif defined(TCCR0A) && defined(CS01) && defined(CS00)
+  // this combination is for the __AVR_ATmega645__ series
+  sbi(TCCR0A, CS01);
+  sbi(TCCR0A, CS00);
+  #else
+          #error Timer 0 prescale factor 64 not set correctly
+  #endif
+
+  // enable timer 0 overflow interrupt
+  #if defined(TIMSK) && defined(TOIE0)
+  sbi(TIMSK, TOIE0);
+  #elif defined(TIMSK0) && defined(TOIE0)
+  sbi(TIMSK0, TOIE0);
+  #else
+          #error  Timer 0 overflow interrupt not set correctly
+  #endif
+
+  //for debugging
+  Serial.begin(250000);
+
+  // init player and oponent
+  player1 = (Player *)malloc(sizeof(Player));
+  oponent = (Player *)malloc(sizeof(Player));
+  player1->bomblist[0].time_placed = 0;
+  oponent->bomblist[0].time_placed = 0;
+  player1->bomblist[0].location_x = 100;
+  player1->bomblist[0].location_y = 100;
+  oponent->bomblist[0].location_x = 100;
+  oponent->bomblist[0].location_y = 100;
+  init_player(player1, 1, 1, 0, 3, RGB(150,100,250));
+  init_player(oponent, 12, 10, 0, 3, RGB(44, 76, 23));
+
+
+  // init comunication and Nunchuck
+  initIRCommLib();
+  nunchuck_init();
+
+  // start display and generate and load map
+
+  init_display(lcd);
+  generate_map();
+  load_map(lcd);
+
+  //draw player and oponent
+  draw_player(player1, lcd);
+  draw_player(oponent, lcd);
+
+  // start game loop
+  gameloop(player1, oponent, lcd);
+}
+
 
 void generate_map()
 {
@@ -239,5 +302,15 @@ void gameloop(Player *player, Player *opponent, MI0283QT9 lcd)
           place_bomb(player);
         }
       free(buffer);
+    }
+}
+
+ISR(TIMER2_OVF_vect)
+{
+  if ( player1->bomblist[0].time_placed + 3000 <=  millis() && player1->bomblist[0].exploded != 1)
+    {
+      //bom has to explode!
+      player1->bomblist[0].exploded = 1;
+      Serial.println("Boem");
     }
 }

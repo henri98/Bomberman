@@ -7,6 +7,12 @@
 #include <Nunchuck.h>
 #include <IRCommLib.h>
 
+#ifndef cbi
+#define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
+#endif
+#ifndef sbi
+#define sbi(sfr, bit) (_SFR_BYTE(sfr) |= _BV(bit))
+#endif
 
 typedef struct {
   unsigned char location_x;
@@ -25,7 +31,7 @@ typedef struct {
 } Player;
 
 
-
+void initinit();
 void generate_map();
 void init_player(Player *player1,int x,int y,int points, int lives,  uint_least16_t color);
 void load_map(MI0283QT9 lcd);
