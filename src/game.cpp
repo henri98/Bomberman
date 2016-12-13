@@ -3,24 +3,60 @@
 uint_least16_t background = RGB(103, 98, 96);
 volatile unsigned long overflow_counter = 0;
 
-char map_arr[12][14] = {
-  {'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w'},   // 0
-  {'w', 'w', 'n', 'w', 'n', 'w', 'n', 'n', 'n', 'n', 'n', 'w', 'w'},   // 1
-  {'w', 'n', 'n', 'n', 'n', 'w', 'n', 'n', 'n', 'n', 'n', 'n', 'w'},   // 2
-  {'w', 'w', 'w', 'w', 'n', 'w', 'n', 'n', 'n', 'n', 'n', 'n', 'w'},   // 3
-  {'w', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'w'},   // 4
-  {'w', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'w', 'n', 'n', 'n', 'w'},   // 5
-  {'w', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'w'},   // 6
-  {'w', 'n', 'n', 'w', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'w'},   // 7
-  {'w', 'n', 'n', 'w', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'w'},   // 8
-  {'w', 'n', 'w', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'w'},   // 9
-  {'w', 'w', 'n', 'n', 'n', 'w', 'n', 'n', 'n', 'n', 'n', 'n', 'w'},   // 10
-  {'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w'}    // 11
-};
+// char map_arr[12][14] = {
+//   {'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w'},   // 0
+//   {'w', 'w', 'n', 'w', 'n', 'w', 'n', 'n', 'n', 'n', 'n', 'w', 'w'},   // 1
+//   {'w', 'n', 'n', 'n', 'n', 'w', 'n', 'n', 'n', 'n', 'n', 'n', 'w'},   // 2
+//   {'w', 'w', 'w', 'w', 'n', 'w', 'n', 'n', 'n', 'n', 'n', 'n', 'w'},   // 3
+//   {'w', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'w'},   // 4
+//   {'w', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'w', 'n', 'n', 'n', 'w'},   // 5
+//   {'w', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'w'},   // 6
+//   {'w', 'n', 'n', 'w', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'w'},   // 7
+//   {'w', 'n', 'n', 'w', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'w'},   // 8
+//   {'w', 'n', 'w', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'w'},   // 9
+//   {'w', 'w', 'n', 'n', 'n', 'w', 'n', 'n', 'n', 'n', 'n', 'n', 'w'},   // 10
+//   {'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w'}    // 11
+// };
+
+#define MAP_WIDTH         14
+#define MAP_HEIGHT        12
+#define SURROUND_WALLS    1
+#define WALL_EMPTY_RATIO  3
+
+char map_arr[MAP_HEIGHT][MAP_WIDTH];
 
 void generate_map()
 {
-  // generate map....
+  // @TODO: Make random ...
+  srand(0);
+
+  for (uint8_t y = 0; y < MAP_HEIGHT; y++)
+    {
+      for (uint8_t x = 0; x < MAP_WIDTH; x++)
+        {
+          // If surround_walls is enabled, and if it is currently filling an edge
+          if ( SURROUND_WALLS != 0 && (x == 0 || y == 0 || x == (MAP_WIDTH - 1) || y == (MAP_HEIGHT - 1)) )
+            {
+              map_arr[y][x] = 'w';
+            }
+          else
+            {
+              map_arr[y][x] = (rand() % WALL_EMPTY_RATIO) == 0 ? 'n' : 'w';
+            }
+        }
+    }
+
+  uint8_t surrounded = SURROUND_WALLS != 0 ? 1 : 0;
+
+  // Save a corner for the left-top player
+  map_arr[surrounded][surrounded] = 'n';
+  map_arr[surrounded + 1][surrounded] = 'n';
+  map_arr[surrounded][surrounded + 1] = 'n';
+
+  // Save a corner for the right-bot player
+  map_arr[(MAP_HEIGHT - 1) - surrounded][(MAP_WIDTH - 1) - surrounded] = 'n';
+  map_arr[((MAP_HEIGHT - 1) - surrounded) - 1][(MAP_WIDTH - 1) - surrounded] = 'n';
+  map_arr[(MAP_HEIGHT - 1) - surrounded][((MAP_WIDTH - 1) - surrounded) - 1] = 'n';
 }
 
 void init_player(Player *player, int x, int y, int points, int lives, uint_least16_t color)
@@ -35,22 +71,31 @@ void init_player(Player *player, int x, int y, int points, int lives, uint_least
 void init_display(MI0283QT9 lcd)
 {
   // init arduino library
-//  init();
   lcd.begin();
-//  lcd.begin(SPI_CLOCK_DIV128 );
   lcd.led(100);
 }
 
 void load_map(MI0283QT9 lcd)
 {
   lcd.fillScreen(background);
-  for (size_t i = 0; i < 14; i++)
+  for (int y = 0; y < MAP_HEIGHT; y++)
     {
-      for (size_t j = 0; j < 12; j++)
+      for (int x = 0; x < MAP_WIDTH; x++)
         {
-          if (map_arr[j][i] == 'w')
+          if (map_arr[y][x] == 'w')
             {
-              lcd.fillRect(i*20,j*20,20,20,RGB(45,45, 45));
+              lcd.fillRect(x * 20, y * 20, 20, 4, RGB(139,0,0));
+              lcd.drawLine(x * 20 + 19, y*20,  x * 20 + 19, y*20 +4, RGB(0,0,0));
+              lcd.fillRect(x * 20, y * 20 +4, 20, 1, RGB(47,79,79));
+              lcd.fillRect(x * 20, y * 20 +5, 20, 4, RGB(139,0,0));
+              lcd.drawLine(x * 20 + 9, y*20 +5,  x * 20 + 9, y*20 +9, RGB(0,0,0));
+              lcd.fillRect(x * 20, y * 20 +9, 20, 1, RGB(47,79,79));
+              lcd.fillRect(x * 20, y * 20 +10, 20, 4, RGB(139,0,0));
+              lcd.drawLine(x * 20 + 19, y*20 + 10,  x * 20 + 19, y*20 +14, RGB(0,0,0));
+              lcd.fillRect(x * 20, y * 20 +14, 20, 1, RGB(47,79,79));
+              lcd.fillRect(x * 20, y * 20 +15, 20, 4, RGB(139,0,0));
+              lcd.drawLine(x * 20 + 9, y*20 + 15,  x * 20 + 9, y*20 +19, RGB(0,0,0));
+              lcd.fillRect(x * 20, y * 20 +19, 20, 1, RGB(47,79,79));
             }
         }
     }
@@ -80,7 +125,6 @@ void move_left(Player *player,MI0283QT9 lcd)
       sendPlayerPos(&xPos, &yPos);
     }
   draw_bomb(player, lcd);
-
 }
 
 void move_right(Player *player,MI0283QT9 lcd)
@@ -100,7 +144,6 @@ void move_right(Player *player,MI0283QT9 lcd)
       sendPlayerPos(&xPos, &yPos);
     }
   draw_bomb(player, lcd);
-
 }
 
 void move_down(Player *player,MI0283QT9 lcd)
@@ -119,14 +162,15 @@ void move_down(Player *player,MI0283QT9 lcd)
       unsigned char yPos = player->location_y + '0';
       sendPlayerPos(&xPos, &yPos);
     }
-  draw_bomb(player, lcd);
 
+  draw_bomb(player, lcd);
 }
 
 void move_up(Player *player,MI0283QT9 lcd)
 {
   if (map_arr[player->location_y - 1][player->location_x  ] != 'w')
     {
+
       for (size_t i = 0; i < 20; i++)
         {
           lcd.drawLine(player->location_x * 20, player->location_y * 20 - i, player->location_x * 20 + 19, player->location_y * 20 - i, player->color);
@@ -139,6 +183,7 @@ void move_up(Player *player,MI0283QT9 lcd)
       unsigned char yPos = player->location_y + '0';
       sendPlayerPos(&xPos, &yPos);
     }
+
   draw_bomb(player, lcd);
 }
 

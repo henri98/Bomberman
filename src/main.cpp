@@ -59,8 +59,9 @@ void initinit()
 int main()
 {
   initinit();
-  init_display(lcd);
   Serial.begin(250000);
+  init_display(lcd);
+  generate_map();
   load_map(lcd);
   initIRCommLib();
 
@@ -101,8 +102,8 @@ int main()
 
   nunchuck_init();
   player1 = (Player *)malloc(sizeof(Player));
-  generate_map();
-  init_player(player1, 2, 2, 0, 3, RGB(150,100,250));
+
+  init_player(player1, 1, 1, 0, 3, RGB(150,100,250));
   draw_player(player1,lcd);
   gameloop(player1, lcd);
   return 0;
