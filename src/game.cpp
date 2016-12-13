@@ -1,7 +1,6 @@
 #include "game.h"
 
-uint_least16_t background = RGB(103, 98, 96);
-volatile unsigned long overflow_counter = 0;
+static uint_least16_t background = RGB(103, 98, 96);
 
 // char map_arr[12][14] = {
 //   {'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w'},   // 0
@@ -28,23 +27,23 @@ char map_arr[MAP_HEIGHT][MAP_WIDTH];
 void generate_map()
 {
   // @TODO: Make random ...
-  srand(0);
+  srand(analogRead(2));
 
   for (uint8_t y = 0; y < MAP_HEIGHT; y++)
-  {
-    for (uint8_t x = 0; x < MAP_WIDTH; x++)
     {
-      // If surround_walls is enabled, and if it is currently filling an edge
-      if ( SURROUND_WALLS != 0 && (x == 0 || y == 0 || x == (MAP_WIDTH - 1) || y == (MAP_HEIGHT - 1)) )
-      {
-        map_arr[y][x] = 'w';
-      }
-      else
-      {
-        map_arr[y][x] = (rand() % WALL_EMPTY_RATIO) == 0 ? 'n' : 'w';
-      }
+      for (uint8_t x = 0; x < MAP_WIDTH; x++)
+        {
+          // If surround_walls is enabled, and if it is currently filling an edge
+          if ( SURROUND_WALLS != 0 && (x == 0 || y == 0 || x == (MAP_WIDTH - 1) || y == (MAP_HEIGHT - 1)) )
+            {
+              map_arr[y][x] = 'w';
+            }
+          else
+            {
+              map_arr[y][x] = (rand() % WALL_EMPTY_RATIO) == 0 ? 'n' : 'w';
+            }
+        }
     }
-  }
 
   uint8_t surrounded = SURROUND_WALLS != 0 ? 1 : 0;
 
@@ -79,26 +78,26 @@ void load_map(MI0283QT9 lcd)
 {
   lcd.fillScreen(background);
   for (int y = 0; y < MAP_HEIGHT; y++)
-  {
-    for (int x = 0; x < MAP_WIDTH; x++)
     {
-      if (map_arr[y][x] == 'w')
-      {
-        lcd.fillRect(x * 20, y * 20, 20, 4, RGB(139,0,0));
-        lcd.drawLine(x * 20 + 19, y*20,  x * 20 + 19, y*20 +4, RGB(0,0,0));
-        lcd.fillRect(x * 20, y * 20 +4, 20, 1, RGB(47,79,79));
-        lcd.fillRect(x * 20, y * 20 +5, 20, 4, RGB(139,0,0));
-        lcd.drawLine(x * 20 + 9, y*20 +5,  x * 20 + 9, y*20 +9, RGB(0,0,0));
-        lcd.fillRect(x * 20, y * 20 +9, 20, 1, RGB(47,79,79));
-        lcd.fillRect(x * 20, y * 20 +10, 20, 4, RGB(139,0,0));
-        lcd.drawLine(x * 20 + 19, y*20 + 10,  x * 20 + 19, y*20 +14, RGB(0,0,0));
-        lcd.fillRect(x * 20, y * 20 +14, 20, 1, RGB(47,79,79));
-        lcd.fillRect(x * 20, y * 20 +15, 20, 4, RGB(139,0,0));
-        lcd.drawLine(x * 20 + 9, y*20 + 15,  x * 20 + 9, y*20 +19, RGB(0,0,0));
-        lcd.fillRect(x * 20, y * 20 +19, 20, 1, RGB(47,79,79));
-      }
+      for (int x = 0; x < MAP_WIDTH; x++)
+        {
+          if (map_arr[y][x] == 'w')
+            {
+              lcd.fillRect(x * 20, y * 20, 20, 4, RGB(139,0,0));
+              lcd.drawLine(x * 20 + 19, y*20,  x * 20 + 19, y*20 +4, RGB(0,0,0));
+              lcd.fillRect(x * 20, y * 20 +4, 20, 1, RGB(47,79,79));
+              lcd.fillRect(x * 20, y * 20 +5, 20, 4, RGB(139,0,0));
+              lcd.drawLine(x * 20 + 9, y*20 +5,  x * 20 + 9, y*20 +9, RGB(0,0,0));
+              lcd.fillRect(x * 20, y * 20 +9, 20, 1, RGB(47,79,79));
+              lcd.fillRect(x * 20, y * 20 +10, 20, 4, RGB(139,0,0));
+              lcd.drawLine(x * 20 + 19, y*20 + 10,  x * 20 + 19, y*20 +14, RGB(0,0,0));
+              lcd.fillRect(x * 20, y * 20 +14, 20, 1, RGB(47,79,79));
+              lcd.fillRect(x * 20, y * 20 +15, 20, 4, RGB(139,0,0));
+              lcd.drawLine(x * 20 + 9, y*20 + 15,  x * 20 + 9, y*20 +19, RGB(0,0,0));
+              lcd.fillRect(x * 20, y * 20 +19, 20, 1, RGB(47,79,79));
+            }
+        }
     }
-  }
 }
 
 void draw_player(Player *player,MI0283QT9 lcd)
@@ -109,59 +108,57 @@ void draw_player(Player *player,MI0283QT9 lcd)
 void move_left(Player *player,MI0283QT9 lcd)
 {
   if (map_arr[player->location_y][player->location_x  - 1] != 'w')
-  {
-    for (size_t i = 0; i < 20; i++)
     {
-      //add line
-      lcd.drawLine(player->location_x * 20 - i, player->location_y * 20, player->location_x * 20 - i, player->location_y * 20 + 19, player->color);
-      //remove line
-      lcd.drawLine(player->location_x * 20 + 19 - i, player->location_y * 20, player->location_x * 20 + 19 - i, player->location_y * 20 + 19, background);
-      delay(5);
+      for (size_t i = 0; i < 20; i++)
+        {
+          //add line
+          lcd.drawLine(player->location_x * 20 - i, player->location_y * 20, player->location_x * 20 - i, player->location_y * 20 + 19, player->color);
+          //remove line
+          lcd.drawLine(player->location_x * 20 + 19 - i, player->location_y * 20, player->location_x * 20 + 19 - i, player->location_y * 20 + 19, background);
+        }
+      lcd.drawLine(player->location_x * 20 - 20, player->location_y * 20, player->location_x * 20 - 20, player->location_y * 20 + 19, player->color);
+      player->location_x--;
+      unsigned char xPos = player->location_x + '0';
+      unsigned char yPos = player->location_y + '0';
+      sendPlayerPos(&xPos, &yPos);
     }
-    lcd.drawLine(player->location_x * 20 - 20, player->location_y * 20, player->location_x * 20 - 20, player->location_y * 20 + 19, player->color);
-    player->location_x--;
-    unsigned char xPos = player->location_x + '0';
-    unsigned char yPos = player->location_y + '0';
-    sendPlayerPos(&xPos, &yPos);
-  }
   draw_bomb(player, lcd);
 }
 
 void move_right(Player *player,MI0283QT9 lcd)
 {
   if (map_arr[player->location_y][player->location_x  + 1] != 'w')
-  {
-    for (size_t i = 0; i < 20; i++)
     {
-      lcd.drawLine(player->location_x * 20 + 19 + i, player->location_y * 20, player->location_x * 20 + 19 + i, player->location_y * 20 + 19, player->color);
-      lcd.drawLine(player->location_x * 20 + i, player->location_y * 20, player->location_x * 20 + i, player->location_y * 20 + 19, background);
-      delay(5);
+      for (size_t i = 0; i < 20; i++)
+        {
+          lcd.drawLine(player->location_x * 20 + 19 + i, player->location_y * 20, player->location_x * 20 + 19 + i, player->location_y * 20 + 19, player->color);
+          lcd.drawLine(player->location_x * 20 + i, player->location_y * 20, player->location_x * 20 + i, player->location_y * 20 + 19, background);
+
+        }
+      lcd.drawLine(player->location_x * 20 + 19 + 20, player->location_y * 20, player->location_x * 20 + 19 + 20, player->location_y * 20 + 19, player->color);
+      player->location_x++;
+      unsigned char xPos = player->location_x + '0';
+      unsigned char yPos = player->location_y + '0';
+      sendPlayerPos(&xPos, &yPos);
     }
-    lcd.drawLine(player->location_x * 20 + 19 + 20, player->location_y * 20, player->location_x * 20 + 19 + 20, player->location_y * 20 + 19, player->color);
-    player->location_x++;
-    unsigned char xPos = player->location_x + '0';
-    unsigned char yPos = player->location_y + '0';
-    sendPlayerPos(&xPos, &yPos);
-  }
   draw_bomb(player, lcd);
 }
 
 void move_down(Player *player,MI0283QT9 lcd)
 {
   if (map_arr[player->location_y + 1][player->location_x] != 'w')
-  {
-    for (size_t i = 0; i < 20; i++)
     {
-      lcd.drawLine(player->location_x * 20, player->location_y * 20 + 19 + i, player->location_x * 20 + 19, player->location_y * 20 + 19 + i, player->color);
-      lcd.drawLine(player->location_x * 20, player->location_y * 20 + i, player->location_x * 20 + 19, player->location_y * 20 + i, background);
-      delay(5);
+      for (size_t i = 0; i < 20; i++)
+        {
+          lcd.drawLine(player->location_x * 20, player->location_y * 20 + 19 + i, player->location_x * 20 + 19, player->location_y * 20 + 19 + i, player->color);
+          lcd.drawLine(player->location_x * 20, player->location_y * 20 + i, player->location_x * 20 + 19, player->location_y * 20 + i, background);
+        }
+      lcd.drawLine(player->location_x * 20, player->location_y * 20 + 19 + 20, player->location_x * 20 + 19, player->location_y * 20 + 19 + 20, player->color);
+      player->location_y++;
+      unsigned char xPos = player->location_x + '0';
+      unsigned char yPos = player->location_y + '0';
+      sendPlayerPos(&xPos, &yPos);
     }
-    lcd.drawLine(player->location_x * 20, player->location_y * 20 + 19 + 20, player->location_x * 20 + 19, player->location_y * 20 + 19 + 20, player->color);
-    player->location_y++;
-    unsigned char xPos = player->location_x + '0';
-    unsigned char yPos = player->location_y + '0';
-    sendPlayerPos(&xPos, &yPos);
-  }
 
   draw_bomb(player, lcd);
 }
@@ -169,20 +166,19 @@ void move_down(Player *player,MI0283QT9 lcd)
 void move_up(Player *player,MI0283QT9 lcd)
 {
   if (map_arr[player->location_y - 1][player->location_x  ] != 'w')
-  {
-
-    for (size_t i = 0; i < 20; i++)
     {
-      lcd.drawLine(player->location_x * 20, player->location_y * 20 - i, player->location_x * 20 + 19, player->location_y * 20 - i, player->color);
-      lcd.drawLine(player->location_x * 20, player->location_y * 20 + 19 - i, player->location_x * 20 + 19, player->location_y * 20 + 19 - i,  background);
-      delay(5);
+
+      for (size_t i = 0; i < 20; i++)
+        {
+          lcd.drawLine(player->location_x * 20, player->location_y * 20 - i, player->location_x * 20 + 19, player->location_y * 20 - i, player->color);
+          lcd.drawLine(player->location_x * 20, player->location_y * 20 + 19 - i, player->location_x * 20 + 19, player->location_y * 20 + 19 - i,  background);
+        }
+      lcd.drawLine(player->location_x * 20, player->location_y * 20 - 20, player->location_x * 20 + 19, player->location_y * 20 - 20, player->color);
+      player->location_y--;
+      unsigned char xPos = player->location_x + '0';
+      unsigned char yPos = player->location_y + '0';
+      sendPlayerPos(&xPos, &yPos);
     }
-    lcd.drawLine(player->location_x * 20, player->location_y * 20 - 20, player->location_x * 20 + 19, player->location_y * 20 - 20, player->color);
-    player->location_y--;
-    unsigned char xPos = player->location_x + '0';
-    unsigned char yPos = player->location_y + '0';
-    sendPlayerPos(&xPos, &yPos);
-  }
 
   draw_bomb(player, lcd);
 }
@@ -190,14 +186,13 @@ void move_up(Player *player,MI0283QT9 lcd)
 void place_bomb(Player *player)
 {
   //check if bomb allready placed
-  if (player->bomblist[0].time_placed < overflow_counter + 100000000)
-  {
-    player->bomblist[0].location_x = player->location_x;
-    player->bomblist[0].location_y = player->location_y;
-    player->bomblist[0].time_placed = overflow_counter;
-  }
-  //bomb->player = player;
-  //lcd.fillCircle(bomb->location_x*20+10, bomb->location_y*20+10, 9.5, RGB(0,0,0));
+  if ( player->bomblist[0].time_placed + 3000 <=  millis())
+    {
+      player->bomblist[0].location_x = player->location_x;
+      player->bomblist[0].location_y = player->location_y;
+      player->bomblist[0].exploded = 0;
+      player->bomblist[0].time_placed = millis();
+    }
 }
 
 void draw_bomb(Player *player, MI0283QT9 lcd)
@@ -208,55 +203,41 @@ void draw_bomb(Player *player, MI0283QT9 lcd)
 void gameloop(Player *player, Player *opponent, MI0283QT9 lcd)
 {
   while (1)
-  {
-    // struct buf *buffer;
-    struct buf *buffer = (buf *)malloc(sizeof(struct buf));
-    nunchuck_get_data(buffer);
-    delayMicroseconds(100);
-
-    // Get the received opponent's location
-    opponent->location_x = getOpponentPosX();
-    opponent->location_y = getOpponentPosY();
-
-    //left
-    if (buffer->xJoystick >= 34 && buffer->xJoystick <= 50 && buffer->yJoystick >= 98 && buffer->yJoystick <= 165)
     {
-      move_left(player, lcd);
-    }
-    /* Move Right */
-    if (buffer->xJoystick >= 215 && buffer->xJoystick <= 235 && buffer->yJoystick >= 128 && buffer->yJoystick <= 175)
-    {
-      move_right(player, lcd);
-    }
-    /* Move Up */
-    if (buffer->xJoystick >= 90 && buffer->xJoystick <= 170 && buffer->yJoystick >= 215 && buffer->yJoystick <= 225)
-    {
-      move_up(player, lcd);
-    }
-    /* Move Down */
-    if (buffer->xJoystick >= 95 && buffer->xJoystick <= 155 && buffer->yJoystick >= 35 && buffer->yJoystick <= 52)
-    {
-      move_down(player, lcd);
-    }
+      // struct buf *buffer;
+      struct buf *buffer = (buf *)malloc(sizeof(struct buf));
+      nunchuck_get_data(buffer);
+      delay(100);
 
-    if (buffer->zButton == 1)
-    {
-      place_bomb(player);
+      // Get the received opponent's location
+      opponent->location_x = getOpponentPosX();
+      opponent->location_y = getOpponentPosY();
+
+      //left
+      if (buffer->xJoystick >= 34 && buffer->xJoystick <= 50 && buffer->yJoystick >= 98 && buffer->yJoystick <= 165)
+        {
+          move_left(player, lcd);
+        }
+      /* Move Right */
+      if (buffer->xJoystick >= 215 && buffer->xJoystick <= 235 && buffer->yJoystick >= 128 && buffer->yJoystick <= 175)
+        {
+          move_right(player, lcd);
+        }
+      /* Move Up */
+      if (buffer->xJoystick >= 90 && buffer->xJoystick <= 170 && buffer->yJoystick >= 215 && buffer->yJoystick <= 225)
+        {
+          move_up(player, lcd);
+        }
+      /* Move Down */
+      if (buffer->xJoystick >= 95 && buffer->xJoystick <= 155 && buffer->yJoystick >= 35 && buffer->yJoystick <= 52)
+        {
+          move_down(player, lcd);
+        }
+
+      if (buffer->zButton == 1)
+        {
+          place_bomb(player);
+        }
+      free(buffer);
     }
-    free(buffer);
-  }
-}
-
-void wait(unsigned long delaytime)
-{
-  unsigned long currenttime = overflow_counter;
-  while (overflow_counter  <= currenttime + delaytime)
-  {
-    //delay
-  }
-}
-
-ISR(TIMER2_OVF_vect)
-{
-  overflow_counter++;
 }

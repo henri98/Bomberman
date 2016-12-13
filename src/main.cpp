@@ -54,6 +54,16 @@ void initinit()
   #else
           #error  Timer 0 overflow interrupt not set correctly
   #endif
+
+
+  player1 = (Player *)malloc(sizeof(Player));
+  oponent = (Player *)malloc(sizeof(Player));
+  player1->bomblist[0].time_placed = 0;
+  oponent->bomblist[0].time_placed = 0;
+  player1->bomblist[0].location_x = 100;
+  player1->bomblist[0].location_y = 100;
+  oponent->bomblist[0].location_x = 100;
+  oponent->bomblist[0].location_y = 100;
 }
 
 int main()
@@ -64,51 +74,21 @@ int main()
   init_display(lcd);
   generate_map();
   load_map(lcd);
-
-
-  while (0)
-  {
-    if (Serial.available() > 0)
-    {
-      unsigned char byteToSend = (unsigned char)Serial.read();
-      Serial.println(byteToSend);
-      if (byteToSend == 'p')
-      {
-        unsigned char xPos = 0x32;
-        unsigned char yPos = 0x33;
-        sendPlayerPos(&xPos, &yPos);
-      }
-      else if (byteToSend == 'b')
-      {
-        unsigned char xPos = 0x31;
-        unsigned char yPos = 0x35;
-        unsigned char ID = 0x39;
-        sendBombPlaced(&xPos, &yPos, &ID);
-      }
-      else if (byteToSend == 'e')
-      {
-        unsigned char ID = 0x39;
-        sendBombExploded(&ID);
-      }
-      else if (byteToSend == 's')
-      {
-        unsigned char score = 0x30;
-        sendScore(&score);
-      }
-    }
-  }
-  /// END TEMP CODE
-
-
-
   nunchuck_init();
-  player1 = (Player *)malloc(sizeof(Player));
-  oponent = (Player *)malloc(sizeof(Player));
-
   init_player(player1, 1, 1, 0, 3, RGB(150,100,250));
   init_player(oponent, 12, 10, 0, 3, RGB(44, 76, 23));
   draw_player(player1, lcd);
   draw_player(oponent, lcd);
   gameloop(player1, oponent, lcd);
   return 0;
+}
+
+ISR(TIMER2_OVF_vect)
+{
+  if ( player1->bomblist[0].time_placed + 3000 <=  millis() && player1->bomblist[0].exploded != 1)
+    {
+      //bom has to explode!
+      player1->bomblist[0].exploded = 1;
+      Serial.println("Boem");
+    }
 }
