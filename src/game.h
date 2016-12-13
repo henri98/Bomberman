@@ -36,5 +36,5 @@ void move_down(Player *player,MI0283QT9 lcd);
 void move_up(Player *player,MI0283QT9 lcd);
 void place_bomb(Player *player);
 void draw_bomb(Player *player, MI0283QT9 lcd);
-void gameloop(Player *player, MI0283QT9 lcd);
+void gameloop(Player *player, Player *opponent, MI0283QT9 lcd);
 void wait(unsigned long delaytime);
