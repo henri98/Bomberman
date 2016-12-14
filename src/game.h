@@ -19,6 +19,7 @@ typedef struct {
   unsigned char location_y;
   unsigned long time_placed;
   unsigned char exploded;
+  unsigned char explosion_removed;
 } Bomb;
 
 typedef struct {

@@ -6,6 +6,8 @@ static uint_least16_t background = RGB(103, 98, 96);
 #define MAP_HEIGHT        12
 #define SURROUND_WALLS    1
 #define WALL_EMPTY_RATIO  2
+
+//@TODO!
 #define BOMTIME           3 //seconds
 
 char map_arr[MAP_HEIGHT][MAP_WIDTH];
@@ -42,6 +44,7 @@ void initinit()
   #else
           #error Timer 0 prescale factor 64 not set correctly
   #endif
+  // end part of arduino init() funciton
 
   // enable timer 0 overflow interrupt
   #if defined(TIMSK) && defined(TOIE0)
@@ -103,7 +106,7 @@ void generate_map()
             }
           else
             {
-              map_arr[y][x] = (rand() % WALL_EMPTY_RATIO) == 0 ? 'n' : 'w';
+              map_arr[y][x] = (rand() % WALL_EMPTY_RATIO) == 0 ? 'n' : 'm';
             }
         }
     }
@@ -159,6 +162,10 @@ void load_map(MI0283QT9 lcd)
               lcd.drawLine(x * 20 + 9, y*20 + 15,  x * 20 + 9, y*20 +19, RGB(0,0,0));
               lcd.fillRect(x * 20, y * 20 +19, 20, 1, RGB(47,79,79));
             }
+          else if (map_arr[y][x] == 'm')
+            {
+              lcd.fillRect(x * 20, y * 20,20,20, RGB(134,232,0));
+            }
         }
     }
 }
@@ -170,7 +177,7 @@ void draw_player(Player *player,MI0283QT9 lcd)
 
 void move_left(Player *player,MI0283QT9 lcd)
 {
-  if (map_arr[player->location_y][player->location_x  - 1] != 'w')
+  if (map_arr[player->location_y][player->location_x  - 1] == 'n')
     {
       for (size_t i = 0; i < 20; i++)
         {
@@ -190,7 +197,7 @@ void move_left(Player *player,MI0283QT9 lcd)
 
 void move_right(Player *player,MI0283QT9 lcd)
 {
-  if (map_arr[player->location_y][player->location_x  + 1] != 'w')
+  if (map_arr[player->location_y][player->location_x  + 1] == 'n')
     {
       for (size_t i = 0; i < 20; i++)
         {
@@ -209,7 +216,7 @@ void move_right(Player *player,MI0283QT9 lcd)
 
 void move_down(Player *player,MI0283QT9 lcd)
 {
-  if (map_arr[player->location_y + 1][player->location_x] != 'w')
+  if (map_arr[player->location_y + 1][player->location_x] == 'n')
     {
       for (size_t i = 0; i < 20; i++)
         {
@@ -228,7 +235,7 @@ void move_down(Player *player,MI0283QT9 lcd)
 
 void move_up(Player *player,MI0283QT9 lcd)
 {
-  if (map_arr[player->location_y - 1][player->location_x  ] != 'w')
+  if (map_arr[player->location_y - 1][player->location_x  ] == 'n')
     {
 
       for (size_t i = 0; i < 20; i++)
@@ -249,18 +256,22 @@ void move_up(Player *player,MI0283QT9 lcd)
 void place_bomb(Player *player)
 {
   //check if bomb allready placed
-  if ( player->bomblist[0].time_placed + 3000 <=  millis())
+  if ( player->bomblist[0].time_placed + 4000 <=  millis())
     {
       player->bomblist[0].location_x = player->location_x;
       player->bomblist[0].location_y = player->location_y;
       player->bomblist[0].exploded = 0;
+      player1->bomblist[0].explosion_removed = 0;
       player->bomblist[0].time_placed = millis();
     }
 }
 
 void draw_bomb(Player *player, MI0283QT9 lcd)
 {
-  lcd.fillCircle(player->bomblist[0].location_x * 20+9, player->bomblist[0].location_y * 20+ 9, 9, RGB(0,0,0));
+  if (player1->bomblist[0].exploded != 1)
+    {
+      lcd.fillCircle(player->bomblist[0].location_x * 20+9, player->bomblist[0].location_y * 20+ 9, 9, RGB(0,0,0));
+    }
 }
 
 void gameloop(Player *player, Player *opponent, MI0283QT9 lcd)
@@ -311,6 +322,68 @@ ISR(TIMER2_OVF_vect)
     {
       //bom has to explode!
       player1->bomblist[0].exploded = 1;
-      Serial.println("Boem");
+      lcd.fillRect(player1->bomblist[0].location_x*20,player1->bomblist[0].location_y*20,20,20,RGB(208, 20, 60));
+      //check if wall
+      if (map_arr[player1->bomblist[0].location_y][player1->bomblist[0].location_x - 1] != 'w')
+        {
+          lcd.fillRect((player1->bomblist[0].location_x - 1)*20,player1->bomblist[0].location_y*20,20,20,RGB(208, 20, 60));
+        }
+
+      if (map_arr[player1->bomblist[0].location_y][player1->bomblist[0].location_x + 1] != 'w')
+        {
+          lcd.fillRect((player1->bomblist[0].location_x + 1)*20,player1->bomblist[0].location_y*20,20,20,RGB(208, 20, 60));
+        }
+
+      if (map_arr[player1->bomblist[0].location_y - 1][player1->bomblist[0].location_x] != 'w')
+        {
+          lcd.fillRect(player1->bomblist[0].location_x*20,(player1->bomblist[0].location_y - 1)*20,20,20,RGB(208, 20, 60));
+        }
+
+      if (map_arr[player1->bomblist[0].location_y + 1 ][player1->bomblist[0].location_x] != 'w')
+        {
+          lcd.fillRect(player1->bomblist[0].location_x*20,(player1->bomblist[0].location_y + 1)*20,20,20,RGB(208, 20, 60));
+        }
+      //check if other wall
+      if (map_arr[player1->bomblist[0].location_y][player1->bomblist[0].location_x - 1] == 'm')
+        {
+          map_arr[player1->bomblist[0].location_y][player1->bomblist[0].location_x - 1] = 'n';
+        }
+      if (map_arr[player1->bomblist[0].location_y][player1->bomblist[0].location_x + 1] == 'm')
+        {
+          map_arr[player1->bomblist[0].location_y][player1->bomblist[0].location_x + 1] = 'n';
+        }
+      if (map_arr[player1->bomblist[0].location_y - 1][player1->bomblist[0].location_x] == 'm')
+        {
+          map_arr[player1->bomblist[0].location_y - 1][player1->bomblist[0].location_x] = 'n';
+        }
+      if (map_arr[player1->bomblist[0].location_y + 1 ][player1->bomblist[0].location_x] == 'm')
+        {
+          map_arr[player1->bomblist[0].location_y + 1 ][player1->bomblist[0].location_x] = 'n';
+        }
+    }
+  if ( player1->bomblist[0].time_placed + 4000 <=  millis() && player1->bomblist[0].explosion_removed != 1)
+    {
+
+      lcd.fillRect(player1->bomblist[0].location_x*20,player1->bomblist[0].location_y*20,20,20,background);
+      if (map_arr[player1->bomblist[0].location_y][player1->bomblist[0].location_x - 1] != 'w')
+        {
+          lcd.fillRect((player1->bomblist[0].location_x - 1)*20,player1->bomblist[0].location_y*20,20,20,background);
+        }
+
+      if (map_arr[player1->bomblist[0].location_y][player1->bomblist[0].location_x + 1] != 'w')
+        {
+          lcd.fillRect((player1->bomblist[0].location_x + 1)*20,player1->bomblist[0].location_y*20,20,20,background);
+        }
+
+      if (map_arr[player1->bomblist[0].location_y - 1][player1->bomblist[0].location_x] != 'w')
+        {
+          lcd.fillRect(player1->bomblist[0].location_x*20,(player1->bomblist[0].location_y - 1)*20,20,20,background);
+        }
+
+      if (map_arr[player1->bomblist[0].location_y + 1 ][player1->bomblist[0].location_x] != 'w')
+        {
+          lcd.fillRect(player1->bomblist[0].location_x*20,(player1->bomblist[0].location_y + 1)*20,20,20,background);
+        }
+      player1->bomblist[0].explosion_removed = 1;
     }
 }
