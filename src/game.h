@@ -46,3 +46,4 @@ void place_bomb(Player *player);
 void draw_bomb(Player *player, MI0283QT9 lcd);
 void gameloop(Player *player, Player *opponent, MI0283QT9 lcd);
 void draw_lifes(Player *player, MI0283QT9 lcd, int opponent);
+void check_if_player_in_bomb_explosion();

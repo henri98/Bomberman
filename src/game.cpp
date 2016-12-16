@@ -231,6 +231,7 @@ void move_left(Player *player,MI0283QT9 lcd, unsigned char opponent)
           sendPlayerPos(&xPos, &yPos);
         }
     }
+  check_if_player_in_bomb_explosion();
   draw_bomb(player, lcd);
 }
 
@@ -256,6 +257,7 @@ void move_right(Player *player,MI0283QT9 lcd, unsigned char opponent)
           sendPlayerPos(&xPos, &yPos);
         }
     }
+  check_if_player_in_bomb_explosion();
   draw_bomb(player, lcd);
 }
 
@@ -280,7 +282,7 @@ void move_down(Player *player,MI0283QT9 lcd,  unsigned char opponent)
           sendPlayerPos(&xPos, &yPos);
         }
     }
-
+  check_if_player_in_bomb_explosion();
   draw_bomb(player, lcd);
 }
 
@@ -291,7 +293,6 @@ void move_up(Player *player,MI0283QT9 lcd,  unsigned char opponent)
 {
   if (map_arr[player->location_y - 1][player->location_x  ] == 'n')
     {
-
       for (size_t i = 0; i < BLOCKSIZE; i++)
         {
           lcd.drawLine(player->location_x * BLOCKSIZE, player->location_y * BLOCKSIZE - i, player->location_x * BLOCKSIZE + (BLOCKSIZE-1), player->location_y * BLOCKSIZE - i, player->color);
@@ -306,7 +307,7 @@ void move_up(Player *player,MI0283QT9 lcd,  unsigned char opponent)
           sendPlayerPos(&xPos, &yPos);
         }
     }
-
+  check_if_player_in_bomb_explosion();
   draw_bomb(player, lcd);
 }
 
@@ -368,6 +369,24 @@ void draw_lifes(Player *player, MI0283QT9 lcd, int opponent)
     }
   lcd.setCursor(261, height + 31);
   lcd.println(player->points);
+}
+
+void check_if_player_in_bomb_explosion()
+{
+  if ((player->location_x == player->bomblist[0].location_x && player->location_y == player->bomblist[0].location_y && player->bomblist[0].exploded == 1 && player->bomblist[0].explosion_removed != 1) ||
+      (player->location_x == player->bomblist[0].location_x - 1 && player->location_y == player->bomblist[0].location_y && player->bomblist[0].exploded == 1 && player->bomblist[0].explosion_removed != 1) ||
+      (player->location_x == player->bomblist[0].location_x + 1 && player->location_y == player->bomblist[0].location_y && player->bomblist[0].exploded == 1 && player->bomblist[0].explosion_removed != 1) ||
+      (player->location_x == player->bomblist[0].location_x && player->location_y == player->bomblist[0].location_y - 1 && player->bomblist[0].exploded == 1 && player->bomblist[0].explosion_removed != 1)||
+      (player->location_x == player->bomblist[0].location_x && player->location_y == player->bomblist[0].location_y + 1 && player->bomblist[0].exploded == 1 && player->bomblist[0].explosion_removed != 1)
+      )
+    {
+      if (player->lifes != 0)
+        {
+          player->lifes--;
+        }
+      draw_lifes(player, lcd, 0);
+      //@TODO! send lifes
+    }
 }
 
 /*
@@ -459,20 +478,7 @@ void gameloop(Player *player, Player *opponent, MI0283QT9 lcd)
               map_arr[player->bomblist[0].location_y + 1 ][player->bomblist[0].location_x] = 'n';
             }
           //check if there is a player.
-          if ((player->location_x == player->bomblist[0].location_x && player->location_y == player->bomblist[0].location_y) ||
-              (player->location_x == player->bomblist[0].location_x - 1 && player->location_y == player->bomblist[0].location_y) ||
-              (player->location_x == player->bomblist[0].location_x + 1 && player->location_y == player->bomblist[0].location_y) ||
-              (player->location_x == player->bomblist[0].location_x && player->location_y == player->bomblist[0].location_y - 1 )||
-              (player->location_x == player->bomblist[0].location_x && player->location_y == player->bomblist[0].location_y + 1)
-              )
-            {
-              if (player->lifes != 0)
-                {
-                  player->lifes--;
-                }
-              draw_lifes(player, lcd, 0);
-              //@TODO! send lifes
-            }
+          check_if_player_in_bomb_explosion();
         }
       //check if bom is exploded and animation have to be removed
       if ( player->bomblist[0].time_placed + 4000 <=  millis() && player->bomblist[0].explosion_removed != 1)
@@ -498,6 +504,8 @@ void gameloop(Player *player, Player *opponent, MI0283QT9 lcd)
               lcd.fillRect(player->bomblist[0].location_x*BLOCKSIZE,(player->bomblist[0].location_y + 1)*BLOCKSIZE,BLOCKSIZE,BLOCKSIZE,background);
             }
           player->bomblist[0].explosion_removed = 1;
+          draw_player(player, lcd);
+          draw_player(opponent, lcd);
         }
 
       //left
