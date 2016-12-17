@@ -6,6 +6,7 @@
 #include <Arduino.h>
 #include <Nunchuck.h>
 #include <IRCommLib.h>
+#include <sprites.h>
 
 #ifndef cbi
 #define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))

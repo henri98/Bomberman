@@ -1,12 +1,10 @@
 #include "game.h"
 
-static uint_least16_t background = RGB(103, 98, 96);
-
-#define MAP_WIDTH         17 //18
-#define MAP_HEIGHT        16 //16
+#define MAP_WIDTH         16 //18
+#define MAP_HEIGHT        15 //16
 #define SURROUND_WALLS    1
 #define WALL_EMPTY_RATIO  3
-#define BLOCKSIZE         15 //15
+#define BLOCKSIZE         16 //15
 
 #define MASTER            1 //master sends the seed for the map, the masters player start location is 1,1
 
@@ -72,13 +70,13 @@ void initinit()
   //check if master
   if (MASTER)
     {
-      init_player(player, 1, 1, 0, 3, RGB(150,100,250));
-      init_player(opponent, 12, 10, 0, 3, RGB(44, 76, 23));
+      init_player(player, 1, 1, 0, 3, blue);
+      init_player(opponent, 12, 10, 0, 3, green);
     }
   else
     {
-      init_player(player, 12, 10, 0, 3, RGB(150,100,250));
-      init_player(opponent, 1, 1, 0, 3, RGB(44, 76, 23));
+      init_player(player, 12, 10, 0, 3, blue);
+      init_player(opponent, 1, 1, 0, 3, green);
     }
 
 // init comunication and Nunchuck
@@ -163,7 +161,7 @@ void init_display(MI0283QT9 lcd)
 {
   // init arduino library
   lcd.begin();
-  lcd.led(100);
+  lcd.led(0);
 }
 
 /*
@@ -178,26 +176,16 @@ void load_map(MI0283QT9 lcd)
         {
           if (map_arr[y][x] == 'w')
             {
-              // lcd.fillRect(x * 20, y * 20, 20, 4, RGB(139,0,0));
-              // lcd.drawLine(x * 20 + 19, y*20,  x * 20 + 19, y*20 +4, RGB(0,0,0));
-              // lcd.fillRect(x * 20, y * 20 +4, 20, 1, RGB(47,79,79));
-              // lcd.fillRect(x * 20, y * 20 +5, 20, 4, RGB(139,0,0));
-              // lcd.drawLine(x * 20 + 9, y*20 +5,  x * 20 + 9, y*20 +9, RGB(0,0,0));
-              // lcd.fillRect(x * 20, y * 20 +9, 20, 1, RGB(47,79,79));
-              // lcd.fillRect(x * 20, y * 20 +10, 20, 4, RGB(139,0,0));
-              // lcd.drawLine(x * 20 + 19, y*20 + 10,  x * 20 + 19, y*20 +14, RGB(0,0,0));
-              // lcd.fillRect(x * 20, y * 20 +14, 20, 1, RGB(47,79,79));
-              // lcd.fillRect(x * 20, y * 20 +15, 20, 4, RGB(139,0,0));
-              // lcd.drawLine(x * 20 + 9, y*20 + 15,  x * 20 + 9, y*20 +19, RGB(0,0,0));
-              // lcd.fillRect(x * 20, y * 20 +19, 20, 1, RGB(47,79,79));
-              lcd.fillRect(x*BLOCKSIZE,y*BLOCKSIZE,BLOCKSIZE,BLOCKSIZE,RGB(139,0,0));
+              draw_object(lcd,x*BLOCKSIZE,y*BLOCKSIZE, wall);
             }
           else if (map_arr[y][x] == 'm')
             {
-              lcd.fillRect(x * BLOCKSIZE, y * BLOCKSIZE,BLOCKSIZE,BLOCKSIZE, RGB(134,232,0));
+              //lcd.fillRect(x * BLOCKSIZE, y * BLOCKSIZE,BLOCKSIZE,BLOCKSIZE, RGB(134,232,0));
+              draw_object(lcd,x*BLOCKSIZE,y*BLOCKSIZE, wall3);
             }
         }
     }
+  lcd.led(100);
 }
 
 /*
@@ -205,7 +193,7 @@ void load_map(MI0283QT9 lcd)
  */
 void draw_player(Player *player, MI0283QT9 lcd)
 {
-  lcd.fillRect(player->location_x*BLOCKSIZE,player->location_y*BLOCKSIZE,BLOCKSIZE,BLOCKSIZE,player->color);
+  draw_player_sprite(lcd, player->location_x*BLOCKSIZE, (player->location_y*BLOCKSIZE)-8, player->color, bomber_front);
 }
 
 /*
@@ -213,17 +201,24 @@ void draw_player(Player *player, MI0283QT9 lcd)
  */
 void move_left(Player *player,MI0283QT9 lcd, unsigned char opponent)
 {
+  draw_bomb(player, lcd);
   if (map_arr[player->location_y][player->location_x  - 1] == 'n')
     {
-      for (size_t i = 0; i < BLOCKSIZE; i++)
+      if (map_arr[player->location_y-1][player->location_x] == 'w')
         {
-          //add line
-          lcd.drawLine(player->location_x * BLOCKSIZE - i, player->location_y * BLOCKSIZE, player->location_x * BLOCKSIZE - i, player->location_y * BLOCKSIZE + (BLOCKSIZE-1), player->color);
-          //remove line
-          lcd.drawLine(player->location_x * BLOCKSIZE + (BLOCKSIZE-1) - i, player->location_y * BLOCKSIZE, player->location_x * BLOCKSIZE + (BLOCKSIZE-1) - i, player->location_y * BLOCKSIZE + (BLOCKSIZE-1), background);
+          draw_object(lcd,player->location_x*BLOCKSIZE, (player->location_y - 1) *BLOCKSIZE, wall);
         }
-      lcd.drawLine(player->location_x * BLOCKSIZE - BLOCKSIZE, player->location_y * BLOCKSIZE, player->location_x * BLOCKSIZE - BLOCKSIZE, player->location_y * BLOCKSIZE + (BLOCKSIZE-1), player->color);
+      else if (map_arr[player->location_y-1][player->location_x] == 'm')
+        {
+          draw_object(lcd,player->location_x*BLOCKSIZE, (player->location_y - 1) *BLOCKSIZE, wall3);
+        }
+      else
+        {
+          lcd.fillRect(player->location_x*BLOCKSIZE, (player->location_y - 1)*BLOCKSIZE,BLOCKSIZE,BLOCKSIZE,background);
+        }
+      lcd.fillRect(player->location_x*BLOCKSIZE,player->location_y*BLOCKSIZE,BLOCKSIZE,BLOCKSIZE,background);
       player->location_x--;
+      draw_player_sprite(lcd, player->location_x*BLOCKSIZE, (player->location_y*BLOCKSIZE)-8, player->color, bomber_left_side);
       unsigned char xPos = player->location_x + '0';
       unsigned char yPos = player->location_y + '0';
       if (!opponent)
@@ -232,7 +227,6 @@ void move_left(Player *player,MI0283QT9 lcd, unsigned char opponent)
         }
     }
   check_if_player_in_bomb_explosion();
-  draw_bomb(player, lcd);
 }
 
 /*
@@ -240,16 +234,24 @@ void move_left(Player *player,MI0283QT9 lcd, unsigned char opponent)
  */
 void move_right(Player *player,MI0283QT9 lcd, unsigned char opponent)
 {
+  draw_bomb(player, lcd);
   if (map_arr[player->location_y][player->location_x  + 1] == 'n')
     {
-      for (size_t i = 0; i < BLOCKSIZE; i++)
+      if (map_arr[player->location_y-1][player->location_x] == 'w')
         {
-          lcd.drawLine(player->location_x * BLOCKSIZE + (BLOCKSIZE-1) + i, player->location_y * BLOCKSIZE, player->location_x * BLOCKSIZE + (BLOCKSIZE-1) + i, player->location_y * BLOCKSIZE + (BLOCKSIZE-1), player->color);
-          lcd.drawLine(player->location_x * BLOCKSIZE + i, player->location_y * BLOCKSIZE, player->location_x * BLOCKSIZE + i, player->location_y * BLOCKSIZE + (BLOCKSIZE-1), background);
-
+          draw_object(lcd,player->location_x*BLOCKSIZE, (player->location_y - 1) *BLOCKSIZE, wall);
         }
-      lcd.drawLine(player->location_x * BLOCKSIZE + (BLOCKSIZE-1) + BLOCKSIZE, player->location_y * BLOCKSIZE, player->location_x * BLOCKSIZE + (BLOCKSIZE-1) + BLOCKSIZE, player->location_y * BLOCKSIZE + (BLOCKSIZE-1), player->color);
+      else if (map_arr[player->location_y-1][player->location_x] == 'm')
+        {
+          draw_object(lcd,player->location_x*BLOCKSIZE, (player->location_y - 1) *BLOCKSIZE, wall3);
+        }
+      else
+        {
+          lcd.fillRect(player->location_x*BLOCKSIZE, (player->location_y - 1)*BLOCKSIZE,BLOCKSIZE,BLOCKSIZE,background);
+        }
+      lcd.fillRect(player->location_x*BLOCKSIZE,player->location_y*BLOCKSIZE,BLOCKSIZE,BLOCKSIZE,background);
       player->location_x++;
+      draw_player_sprite(lcd, player->location_x*BLOCKSIZE, (player->location_y*BLOCKSIZE)-8, player->color, bomber_right_side);
       unsigned char xPos = player->location_x + '0';
       unsigned char yPos = player->location_y + '0';
       if (!opponent)
@@ -258,7 +260,6 @@ void move_right(Player *player,MI0283QT9 lcd, unsigned char opponent)
         }
     }
   check_if_player_in_bomb_explosion();
-  draw_bomb(player, lcd);
 }
 
 /*
@@ -266,15 +267,24 @@ void move_right(Player *player,MI0283QT9 lcd, unsigned char opponent)
  */
 void move_down(Player *player,MI0283QT9 lcd,  unsigned char opponent)
 {
+  draw_bomb(player, lcd);
   if (map_arr[player->location_y + 1][player->location_x] == 'n')
     {
-      for (size_t i = 0; i < BLOCKSIZE; i++)
+      if (map_arr[player->location_y-1][player->location_x] == 'w')
         {
-          lcd.drawLine(player->location_x * BLOCKSIZE, player->location_y * BLOCKSIZE + (BLOCKSIZE-1) + i, player->location_x * BLOCKSIZE + (BLOCKSIZE-1), player->location_y * BLOCKSIZE + (BLOCKSIZE-1) + i, player->color);
-          lcd.drawLine(player->location_x * BLOCKSIZE, player->location_y * BLOCKSIZE + i, player->location_x * BLOCKSIZE + (BLOCKSIZE-1), player->location_y * BLOCKSIZE + i, background);
+          draw_object(lcd,player->location_x*BLOCKSIZE, (player->location_y - 1) *BLOCKSIZE, wall);
         }
-      lcd.drawLine(player->location_x * BLOCKSIZE, player->location_y * BLOCKSIZE + (BLOCKSIZE-1) + BLOCKSIZE, player->location_x * BLOCKSIZE + (BLOCKSIZE-1), player->location_y * BLOCKSIZE + (BLOCKSIZE-1) + BLOCKSIZE, player->color);
+      else if (map_arr[player->location_y-1][player->location_x] == 'm')
+        {
+          draw_object(lcd,player->location_x*BLOCKSIZE, (player->location_y - 1) *BLOCKSIZE, wall3);
+        }
+      else
+        {
+          lcd.fillRect(player->location_x*BLOCKSIZE, (player->location_y - 1)*BLOCKSIZE,BLOCKSIZE,BLOCKSIZE,background);
+        }
+      lcd.fillRect(player->location_x*BLOCKSIZE,player->location_y*BLOCKSIZE,BLOCKSIZE,BLOCKSIZE,background);
       player->location_y++;
+      draw_player_sprite(lcd, player->location_x*BLOCKSIZE, (player->location_y*BLOCKSIZE)-8, player->color, bomber_front);
       unsigned char xPos = player->location_x + '0';
       unsigned char yPos = player->location_y + '0';
       if (!opponent)
@@ -283,7 +293,6 @@ void move_down(Player *player,MI0283QT9 lcd,  unsigned char opponent)
         }
     }
   check_if_player_in_bomb_explosion();
-  draw_bomb(player, lcd);
 }
 
 /*
@@ -291,15 +300,24 @@ void move_down(Player *player,MI0283QT9 lcd,  unsigned char opponent)
  */
 void move_up(Player *player,MI0283QT9 lcd,  unsigned char opponent)
 {
+  draw_bomb(player, lcd);
   if (map_arr[player->location_y - 1][player->location_x  ] == 'n')
     {
-      for (size_t i = 0; i < BLOCKSIZE; i++)
+      if (map_arr[player->location_y-1][player->location_x] == 'w')
         {
-          lcd.drawLine(player->location_x * BLOCKSIZE, player->location_y * BLOCKSIZE - i, player->location_x * BLOCKSIZE + (BLOCKSIZE-1), player->location_y * BLOCKSIZE - i, player->color);
-          lcd.drawLine(player->location_x * BLOCKSIZE, player->location_y * BLOCKSIZE + (BLOCKSIZE-1) - i, player->location_x * BLOCKSIZE + (BLOCKSIZE-1), player->location_y * BLOCKSIZE + (BLOCKSIZE-1) - i,  background);
+          draw_object(lcd,player->location_x*BLOCKSIZE, (player->location_y - 1) *BLOCKSIZE, wall);
         }
-      lcd.drawLine(player->location_x * BLOCKSIZE, player->location_y * BLOCKSIZE - BLOCKSIZE, player->location_x * BLOCKSIZE + (BLOCKSIZE-1), player->location_y * BLOCKSIZE - BLOCKSIZE, player->color);
+      else if (map_arr[player->location_y-1][player->location_x] == 'm')
+        {
+          draw_object(lcd,player->location_x*BLOCKSIZE, (player->location_y - 1) *BLOCKSIZE, wall3);
+        }
+      else
+        {
+          lcd.fillRect(player->location_x*BLOCKSIZE, (player->location_y - 1)*BLOCKSIZE,BLOCKSIZE,BLOCKSIZE,background);
+        }
+      lcd.fillRect(player->location_x*BLOCKSIZE,player->location_y*BLOCKSIZE,BLOCKSIZE,BLOCKSIZE,background);
       player->location_y--;
+      draw_player_sprite(lcd, player->location_x*BLOCKSIZE, (player->location_y*BLOCKSIZE)-8, player->color, bomber_back);
       unsigned char xPos = player->location_x + '0';
       unsigned char yPos = player->location_y + '0';
       if (!opponent)
@@ -334,7 +352,7 @@ void draw_bomb(Player *player, MI0283QT9 lcd)
 {
   if (player->bomblist[0].exploded != 1)
     {
-      lcd.fillCircle(player->bomblist[0].location_x * BLOCKSIZE+9, player->bomblist[0].location_y * BLOCKSIZE + (BLOCKSIZE/2)-1, (BLOCKSIZE/2)-1, RGB(0,0,0));
+      draw_object(lcd,player->bomblist[0].location_x*BLOCKSIZE,player->bomblist[0].location_y*BLOCKSIZE, bomb);
     }
 }
 
@@ -359,11 +377,12 @@ void draw_lifes(Player *player, MI0283QT9 lcd, int opponent)
     {
       if (q< player->lifes)
         {
-          lcd.fillCircle(268 + (q*18), height + 20, 8, RGB(0,0,0));
+          //  lcd.fillCircle(268 + (q*18), height + 20, 8, RGB(0,0,0));
+          draw_object(lcd, 260 + (q*18), height + 12, life);
         }
       else
         {
-          lcd.fillCircle(268 + (q*18), height + 20, 8, background);
+          lcd.fillRect(260 + (q*18), height + 12, BLOCKSIZE,BLOCKSIZE, background);
         }
 
     }
@@ -439,44 +458,49 @@ void gameloop(Player *player, Player *opponent, MI0283QT9 lcd)
         {
           //bom has to explode!
           player->bomblist[0].exploded = 1;
-          lcd.fillRect(player->bomblist[0].location_x*BLOCKSIZE,player->bomblist[0].location_y*BLOCKSIZE,BLOCKSIZE,BLOCKSIZE,RGB(208, 20, 60));
+          draw_object(lcd, player->bomblist[0].location_x * BLOCKSIZE, player->bomblist[0].location_y * BLOCKSIZE, explosion_center);
           //check if wall
           if (map_arr[player->bomblist[0].location_y][player->bomblist[0].location_x - 1] != 'w')
             {
-              lcd.fillRect((player->bomblist[0].location_x - 1)*BLOCKSIZE,player->bomblist[0].location_y*BLOCKSIZE,BLOCKSIZE,BLOCKSIZE,RGB(208, 20, 60));
+              draw_object(lcd, (player->bomblist[0].location_x- 1) * BLOCKSIZE, player->bomblist[0].location_y * BLOCKSIZE, explosion_left);
             }
 
           if (map_arr[player->bomblist[0].location_y][player->bomblist[0].location_x + 1] != 'w')
             {
-              lcd.fillRect((player->bomblist[0].location_x + 1)*BLOCKSIZE,player->bomblist[0].location_y*BLOCKSIZE,BLOCKSIZE,BLOCKSIZE,RGB(208, 20, 60));
+              draw_object(lcd, (player->bomblist[0].location_x + 1) * BLOCKSIZE, player->bomblist[0].location_y * BLOCKSIZE, explosion_right);
             }
 
           if (map_arr[player->bomblist[0].location_y - 1][player->bomblist[0].location_x] != 'w')
             {
-              lcd.fillRect(player->bomblist[0].location_x*BLOCKSIZE,(player->bomblist[0].location_y - 1)*BLOCKSIZE,BLOCKSIZE,BLOCKSIZE,RGB(208, 20, 60));
+              draw_object(lcd, player->bomblist[0].location_x * BLOCKSIZE, (player->bomblist[0].location_y-1) * BLOCKSIZE, explosion_top);
             }
 
           if (map_arr[player->bomblist[0].location_y + 1 ][player->bomblist[0].location_x] != 'w')
             {
-              lcd.fillRect(player->bomblist[0].location_x*BLOCKSIZE,(player->bomblist[0].location_y + 1)*BLOCKSIZE,BLOCKSIZE,BLOCKSIZE,RGB(208, 20, 60));
+              draw_object(lcd, player->bomblist[0].location_x * BLOCKSIZE, (player->bomblist[0].location_y+1) * BLOCKSIZE, explosion_bottom);
             }
           //check if opjects can explosive
           if (map_arr[player->bomblist[0].location_y][player->bomblist[0].location_x - 1] == 'm')
             {
               map_arr[player->bomblist[0].location_y][player->bomblist[0].location_x - 1] = 'n';
+              player->points += 25;
             }
           if (map_arr[player->bomblist[0].location_y][player->bomblist[0].location_x + 1] == 'm')
             {
               map_arr[player->bomblist[0].location_y][player->bomblist[0].location_x + 1] = 'n';
+              player->points += 26;
             }
           if (map_arr[player->bomblist[0].location_y - 1][player->bomblist[0].location_x] == 'm')
             {
               map_arr[player->bomblist[0].location_y - 1][player->bomblist[0].location_x] = 'n';
+              player->points += 24;
             }
           if (map_arr[player->bomblist[0].location_y + 1 ][player->bomblist[0].location_x] == 'm')
             {
               map_arr[player->bomblist[0].location_y + 1 ][player->bomblist[0].location_x] = 'n';
+              player->points += 23;
             }
+          draw_lifes(player, lcd, 0);
           //check if there is a player.
           check_if_player_in_bomb_explosion();
         }
