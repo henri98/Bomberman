@@ -342,11 +342,11 @@ void draw_lifes(Player *player, MI0283QT9 lcd, int opponent)
   lcd.setCursor(261, height + 2);
   if (opponent)
     {
-      lcd.println("Opposer");
+      lcd.println("Player2");
     }
   else
     {
-      lcd.println("You");
+      lcd.println("Player1");
     }
   for (unsigned int q = 0; q < 3; q++)
     {
