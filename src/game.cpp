@@ -3,10 +3,10 @@
 #define MAP_WIDTH         16 //18
 #define MAP_HEIGHT        15 //16
 #define SURROUND_WALLS    1
-#define WALL_EMPTY_RATIO  3
+#define WALL_EMPTY_RATIO  4
 #define BLOCKSIZE         16 //15
 
-#define MASTER            1 //master sends the seed for the map, the masters player start location is 1,1
+#define MASTER            0 //master sends the seed for the map, the masters player start location is 1,1
 
 //@TODO!
 #define BOMTIME           3 //seconds
@@ -71,11 +71,11 @@ void initinit()
   if (MASTER)
     {
       init_player(player, 1, 1, 0, 3, blue);
-      init_player(opponent, 12, 10, 0, 3, green);
+      init_player(opponent, MAP_WIDTH-2, MAP_HEIGHT-2, 0, 3, green);
     }
   else
     {
-      init_player(player, 12, 10, 0, 3, blue);
+      init_player(player, MAP_WIDTH-2, MAP_HEIGHT-2, 0, 3, blue);
       init_player(opponent, 1, 1, 0, 3, green);
     }
 
@@ -199,7 +199,7 @@ void draw_player(Player *player, MI0283QT9 lcd)
 /*
  * This function moves a player one position to the left.
  */
-void move_left(Player *player,MI0283QT9 lcd, unsigned char opponent)
+void move_left(Player *player,MI0283QT9 lcd)
 {
   draw_bomb(player, lcd);
   if (map_arr[player->location_y][player->location_x  - 1] == 'n')
@@ -219,12 +219,6 @@ void move_left(Player *player,MI0283QT9 lcd, unsigned char opponent)
       lcd.fillRect(player->location_x*BLOCKSIZE,player->location_y*BLOCKSIZE,BLOCKSIZE,BLOCKSIZE,background);
       player->location_x--;
       draw_player_sprite(lcd, player->location_x*BLOCKSIZE, (player->location_y*BLOCKSIZE)-8, player->color, bomber_left_side);
-      unsigned char xPos = player->location_x + '0';
-      unsigned char yPos = player->location_y + '0';
-      if (!opponent)
-        {
-          sendPlayerPos(&xPos, &yPos);
-        }
     }
   check_if_player_in_bomb_explosion();
 }
@@ -232,7 +226,7 @@ void move_left(Player *player,MI0283QT9 lcd, unsigned char opponent)
 /*
  * This function moves a player one position to the right.
  */
-void move_right(Player *player,MI0283QT9 lcd, unsigned char opponent)
+void move_right(Player *player,MI0283QT9 lcd)
 {
   draw_bomb(player, lcd);
   if (map_arr[player->location_y][player->location_x  + 1] == 'n')
@@ -252,12 +246,6 @@ void move_right(Player *player,MI0283QT9 lcd, unsigned char opponent)
       lcd.fillRect(player->location_x*BLOCKSIZE,player->location_y*BLOCKSIZE,BLOCKSIZE,BLOCKSIZE,background);
       player->location_x++;
       draw_player_sprite(lcd, player->location_x*BLOCKSIZE, (player->location_y*BLOCKSIZE)-8, player->color, bomber_right_side);
-      unsigned char xPos = player->location_x + '0';
-      unsigned char yPos = player->location_y + '0';
-      if (!opponent)
-        {
-          sendPlayerPos(&xPos, &yPos);
-        }
     }
   check_if_player_in_bomb_explosion();
 }
@@ -265,7 +253,7 @@ void move_right(Player *player,MI0283QT9 lcd, unsigned char opponent)
 /*
  * This function moves a player one position down.
  */
-void move_down(Player *player,MI0283QT9 lcd,  unsigned char opponent)
+void move_down(Player *player,MI0283QT9 lcd)
 {
   draw_bomb(player, lcd);
   if (map_arr[player->location_y + 1][player->location_x] == 'n')
@@ -285,12 +273,6 @@ void move_down(Player *player,MI0283QT9 lcd,  unsigned char opponent)
       lcd.fillRect(player->location_x*BLOCKSIZE,player->location_y*BLOCKSIZE,BLOCKSIZE,BLOCKSIZE,background);
       player->location_y++;
       draw_player_sprite(lcd, player->location_x*BLOCKSIZE, (player->location_y*BLOCKSIZE)-8, player->color, bomber_front);
-      unsigned char xPos = player->location_x + '0';
-      unsigned char yPos = player->location_y + '0';
-      if (!opponent)
-        {
-          sendPlayerPos(&xPos, &yPos);
-        }
     }
   check_if_player_in_bomb_explosion();
 }
@@ -298,7 +280,7 @@ void move_down(Player *player,MI0283QT9 lcd,  unsigned char opponent)
 /*
  * This function moves a player one position up.
  */
-void move_up(Player *player,MI0283QT9 lcd,  unsigned char opponent)
+void move_up(Player *player,MI0283QT9 lcd)
 {
   draw_bomb(player, lcd);
   if (map_arr[player->location_y - 1][player->location_x  ] == 'n')
@@ -318,15 +300,8 @@ void move_up(Player *player,MI0283QT9 lcd,  unsigned char opponent)
       lcd.fillRect(player->location_x*BLOCKSIZE,player->location_y*BLOCKSIZE,BLOCKSIZE,BLOCKSIZE,background);
       player->location_y--;
       draw_player_sprite(lcd, player->location_x*BLOCKSIZE, (player->location_y*BLOCKSIZE)-8, player->color, bomber_back);
-      unsigned char xPos = player->location_x + '0';
-      unsigned char yPos = player->location_y + '0';
-      if (!opponent)
-        {
-          sendPlayerPos(&xPos, &yPos);
-        }
     }
   check_if_player_in_bomb_explosion();
-  draw_bomb(player, lcd);
 }
 
 /*
@@ -418,14 +393,15 @@ void gameloop(Player *player, Player *opponent, MI0283QT9 lcd)
       // struct buf *buffer;
       struct buf *buffer = (buf *)malloc(sizeof(struct buf));
       nunchuck_get_data(buffer);
+      // delay(75);
+      // delay(50);
       delay(75);
-
-      // // check if opponent moved
+      // check if opponent moved
       // if ((opponent->location_x) > (getOpponentPosX()- '0'))
       //   {
       //     while ((opponent->location_x) != (getOpponentPosX()- '0'))
       //       {
-      //         move_left(opponent, lcd, 1);
+      //         move_left(opponent, lcd);
       //       }
       //   }
       //
@@ -433,7 +409,7 @@ void gameloop(Player *player, Player *opponent, MI0283QT9 lcd)
       //   {
       //     while ((opponent->location_x) != (getOpponentPosX()- '0'))
       //       {
-      //         move_right(opponent, lcd, 1);
+      //         move_right(opponent, lcd);
       //       }
       //   }
       //
@@ -441,7 +417,7 @@ void gameloop(Player *player, Player *opponent, MI0283QT9 lcd)
       //   {
       //     while ((opponent->location_y) != (getOpponentPosY()- '0'))
       //       {
-      //         move_up(opponent, lcd, 1);
+      //         move_up(opponent, lcd);
       //       }
       //   }
       //
@@ -449,7 +425,7 @@ void gameloop(Player *player, Player *opponent, MI0283QT9 lcd)
       //   {
       //     while ((opponent->location_y) != (getOpponentPosY()- '0'))
       //       {
-      //         move_down(opponent, lcd, 1);
+      //         move_down(opponent, lcd);
       //       }
       //   }
 
@@ -504,6 +480,7 @@ void gameloop(Player *player, Player *opponent, MI0283QT9 lcd)
           //check if there is a player.
           check_if_player_in_bomb_explosion();
         }
+
       //check if bom is exploded and animation have to be removed
       if ( player->bomblist[0].time_placed + 4000 <=  millis() && player->bomblist[0].explosion_removed != 1)
         {
@@ -532,26 +509,31 @@ void gameloop(Player *player, Player *opponent, MI0283QT9 lcd)
           draw_player(opponent, lcd);
         }
 
-      //left
+      /* Move Left if Joystick to left */
       if (buffer->xJoystick >= 34 && buffer->xJoystick <= 50 && buffer->yJoystick >= 98 && buffer->yJoystick <= 165)
         {
-          move_left(player, lcd, 0);
+          move_left(player, lcd);
         }
-      /* Move Right */
+      /* Move Right if Joystick to right */
       if (buffer->xJoystick >= 215 && buffer->xJoystick <= 235 && buffer->yJoystick >= 128 && buffer->yJoystick <= 175)
         {
-          move_right(player, lcd, 0);
+          move_right(player, lcd);
         }
-      /* Move Up */
+      /* Move Up if Joystick up */
       if (buffer->xJoystick >= 90 && buffer->xJoystick <= 170 && buffer->yJoystick >= 215 && buffer->yJoystick <= 225)
         {
-          move_up(player, lcd, 0);
+          move_up(player, lcd);
         }
-      /* Move Down */
+      /* Move Down if Joystick down */
       if (buffer->xJoystick >= 95 && buffer->xJoystick <= 155 && buffer->yJoystick >= 35 && buffer->yJoystick <= 52)
         {
-          move_down(player, lcd, 0);
+          move_down(player, lcd);
         }
+
+      // //send position
+      // unsigned char xPos = player->location_x + '0';
+      // unsigned char yPos = player->location_y + '0';
+      // sendPlayerPos(&xPos, &yPos);
 
       if (buffer->zButton == 1)
         {

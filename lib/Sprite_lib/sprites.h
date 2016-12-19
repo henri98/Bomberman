@@ -295,8 +295,6 @@ const char bomber_left_side[24][16] PROGMEM =
 
 const char bomber_right_side[24][16] PROGMEM =
 {
-
-
   {'c', 'b', 'b', 'b', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c'},
   {'b', 'r', 'r', 'r', 'b', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c'},
   {'b', 'r', 'r', 'r', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'c', 'c', 'c', 'c'},
