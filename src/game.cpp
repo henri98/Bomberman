@@ -510,22 +510,22 @@ void gameloop(Player *player, Player *opponent, MI0283QT9 lcd)
         }
 
       /* Move Left if Joystick to left */
-      if (buffer->xJoystick >= 34 && buffer->xJoystick <= 50 && buffer->yJoystick >= 98 && buffer->yJoystick <= 165)
+      if (buffer->xJoystick >= 25 && buffer->xJoystick <= 50 && buffer->yJoystick >= 80 && buffer->yJoystick <= 175)
         {
           move_left(player, lcd);
         }
       /* Move Right if Joystick to right */
-      if (buffer->xJoystick >= 215 && buffer->xJoystick <= 235 && buffer->yJoystick >= 128 && buffer->yJoystick <= 175)
+      if (buffer->xJoystick >= 215 && buffer->xJoystick <= 235 && buffer->yJoystick >= 80 && buffer->yJoystick <= 175)
         {
           move_right(player, lcd);
         }
       /* Move Up if Joystick up */
-      if (buffer->xJoystick >= 90 && buffer->xJoystick <= 170 && buffer->yJoystick >= 215 && buffer->yJoystick <= 225)
+      if (buffer->xJoystick >= 50 && buffer->xJoystick <= 180 && buffer->yJoystick >= 200 && buffer->yJoystick <= 225)
         {
           move_up(player, lcd);
         }
       /* Move Down if Joystick down */
-      if (buffer->xJoystick >= 95 && buffer->xJoystick <= 155 && buffer->yJoystick >= 35 && buffer->yJoystick <= 52)
+      if (buffer->xJoystick >= 50 && buffer->xJoystick <= 180 && buffer->yJoystick >= 35 && buffer->yJoystick <= 52)
         {
           move_down(player, lcd);
         }
