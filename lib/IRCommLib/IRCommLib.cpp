@@ -19,6 +19,12 @@ OpponentPos getOpponentPos()
   return upToDateOpponentPos;
 }
 
+void setOpponentPos(unsigned int x, unsigned int y)
+{
+  upToDateOpponentPos.location_x = x;
+  upToDateOpponentPos.location_y = y;
+}
+
 void initIRCommLib()
 {
   // &upToDateOpponentPos = (OpponentPos *) malloc(sizeof(OpponentPos));
@@ -78,94 +84,94 @@ void byteWasReceived()
   unsigned char *byte = &Dequeue(receivedBytesQueue)->data.byte;
 
   switch (readingType)
-  {
-  case NONE:
-  {
-    if (*byte == PLAYER_POS || *byte == BOMB_PLACED || *byte == BOMB_EXPLODED || *byte == SCORE)
     {
-      readingType = *byte;
-      readingPos = 0;
-    }
-  }
-  break;
-
-  case PLAYER_POS:
-    if (readingPos == 0)
+    case NONE:
     {
-      Serial.print("PlayerX: ");
-      Serial.println(*byte);
-      upToDateOpponentPos.location_x = (unsigned int) *byte;
+      if (*byte == PLAYER_POS || *byte == BOMB_PLACED || *byte == BOMB_EXPLODED || *byte == SCORE)
+        {
+          readingType = *byte;
+          readingPos = 0;
+        }
     }
-    else if (readingPos == 1)
-    {
-      Serial.print("PlayerY: ");
-      Serial.println(*byte);
-      upToDateOpponentPos.location_y = (unsigned int) *byte;
-      readingType = NONE;
-      readingPos = 0;
-    }
-
-    readingPos++;
     break;
 
-  case BOMB_PLACED:
-    if (readingPos == 0)
-    {
-      Serial.print("BombPlacedX: ");
-      Serial.write(*byte);
-      Serial.println();
+    case PLAYER_POS:
+      if (readingPos == 0)
+        {
+          Serial.print("PlayerX: ");
+          Serial.println(*byte);
+          upToDateOpponentPos.location_x = (unsigned int) *byte;
+        }
+      else if (readingPos == 1)
+        {
+          Serial.print("PlayerY: ");
+          Serial.println(*byte);
+          upToDateOpponentPos.location_y = (unsigned int) *byte;
+          readingType = NONE;
+          readingPos = 0;
+        }
+
+      readingPos++;
+      break;
+
+    case BOMB_PLACED:
+      if (readingPos == 0)
+        {
+          Serial.print("BombPlacedX: ");
+          Serial.write(*byte);
+          Serial.println();
+        }
+      else if (readingPos == 1)
+        {
+          Serial.print("BombPlacedY: ");
+          Serial.write(*byte);
+          Serial.println();
+        }
+      else if (readingPos == 2)
+        {
+          Serial.print("BombPlacedID: ");
+          Serial.write(*byte);
+          Serial.println();
+
+          readingType = NONE;
+          readingPos = 0;
+        }
+
+      readingPos++;
+      break;
+
+    case BOMB_EXPLODED:
+      if (readingPos == 0)
+        {
+          Serial.print("BombExplodedID: ");
+          Serial.write(*byte);
+          Serial.println();
+
+          readingType = NONE;
+          readingPos = 0;
+        }
+
+      readingPos++;
+      break;
+
+    case SCORE:
+      if (readingPos == 0)
+        {
+          Serial.print("Opponent's score: ");
+          Serial.write(*byte);
+          Serial.println();
+
+          readingType = NONE;
+          readingPos = 0;
+        }
+
+      readingPos++;
+      break;
+
+    default:
+      Serial.println("Nope, don't send this ...");
+      break;
     }
-    else if (readingPos == 1)
-    {
-      Serial.print("BombPlacedY: ");
-      Serial.write(*byte);
-      Serial.println();
-    }
-    else if (readingPos == 2)
-    {
-      Serial.print("BombPlacedID: ");
-      Serial.write(*byte);
-      Serial.println();
-
-      readingType = NONE;
-      readingPos = 0;
-    }
-
-    readingPos++;
-    break;
-
-  case BOMB_EXPLODED:
-    if (readingPos == 0)
-    {
-      Serial.print("BombExplodedID: ");
-      Serial.write(*byte);
-      Serial.println();
-
-      readingType = NONE;
-      readingPos = 0;
-    }
-
-    readingPos++;
-    break;
-
-  case SCORE:
-    if (readingPos == 0)
-    {
-      Serial.print("Opponent's score: ");
-      Serial.write(*byte);
-      Serial.println();
-
-      readingType = NONE;
-      readingPos = 0;
-    }
-
-    readingPos++;
-    break;
-
-  default:
-    Serial.println("Nope, don't send this ...");
-    break;
-  }
 
   free(byte);
 }
