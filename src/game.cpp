@@ -220,7 +220,6 @@ void move_left(Player *player,MI0283QT9 lcd)
     player->location_x--;
     draw_player_sprite(lcd, player->location_x*BLOCKSIZE, (player->location_y*BLOCKSIZE)-8, player->color, bomber_left_side);
   }
-  check_if_player_in_bomb_explosion();
 }
 
 /*
@@ -247,7 +246,6 @@ void move_right(Player *player,MI0283QT9 lcd)
     player->location_x++;
     draw_player_sprite(lcd, player->location_x*BLOCKSIZE, (player->location_y*BLOCKSIZE)-8, player->color, bomber_right_side);
   }
-  check_if_player_in_bomb_explosion();
 }
 
 /*
@@ -274,7 +272,6 @@ void move_down(Player *player,MI0283QT9 lcd)
     player->location_y++;
     draw_player_sprite(lcd, player->location_x*BLOCKSIZE, (player->location_y*BLOCKSIZE)-8, player->color, bomber_front);
   }
-  check_if_player_in_bomb_explosion();
 }
 
 /*
@@ -301,7 +298,6 @@ void move_up(Player *player,MI0283QT9 lcd)
     player->location_y--;
     draw_player_sprite(lcd, player->location_x*BLOCKSIZE, (player->location_y*BLOCKSIZE)-8, player->color, bomber_back);
   }
-  check_if_player_in_bomb_explosion();
 }
 
 /*
@@ -385,14 +381,31 @@ void check_if_player_in_bomb_explosion()
 
 void updateOpponent()
 {
-  if (opponent->location_x != getOpponentPos().location_x ||
-      opponent->location_y != getOpponentPos().location_y)
+
+  // opponent pos changed, update / redraw opponent
+  //
+  while (opponent->location_x != getOpponentPos().location_x ||
+         opponent->location_y != getOpponentPos().location_y)
   {
-    // opponent pos changed, update / redraw opponent
-    opponent->location_x = getOpponentPos().location_x;
-    opponent->location_y = getOpponentPos().location_y;
+    if (opponent->location_x > getOpponentPos().location_x)
+    {
+      move_left(opponent, lcd);
+    }
+    else if (opponent->location_x < getOpponentPos().location_x)
+    {
+      move_right(opponent, lcd);
+    }
+
+    if (opponent->location_y > getOpponentPos().location_y)
+    {
+      move_up(opponent, lcd);
+    }
+    else if (opponent->location_y < getOpponentPos().location_y)
+    {
+      move_down(opponent, lcd);
+    }
+
   }
-  //Serial.println(opp);
   // Else, nothing to do ..
 }
 
@@ -494,6 +507,7 @@ void gameloop(Player *player, Player *opponent, MI0283QT9 lcd)
     if (buffer->xJoystick >= 25 && buffer->xJoystick <= 50 && buffer->yJoystick >= 80 && buffer->yJoystick <= 175)
     {
       move_left(player, lcd);
+      check_if_player_in_bomb_explosion();
       //send position
       sendPlayerPos(player->location_x, player->location_y);
     }
@@ -501,6 +515,7 @@ void gameloop(Player *player, Player *opponent, MI0283QT9 lcd)
     if (buffer->xJoystick >= 215 && buffer->xJoystick <= 235 && buffer->yJoystick >= 80 && buffer->yJoystick <= 175)
     {
       move_right(player, lcd);
+      check_if_player_in_bomb_explosion();
       //send position
       sendPlayerPos(player->location_x, player->location_y);
     }
@@ -508,6 +523,7 @@ void gameloop(Player *player, Player *opponent, MI0283QT9 lcd)
     if (buffer->xJoystick >= 50 && buffer->xJoystick <= 180 && buffer->yJoystick >= 200 && buffer->yJoystick <= 225)
     {
       move_up(player, lcd);
+      check_if_player_in_bomb_explosion();
       //send position
       sendPlayerPos(player->location_x, player->location_y);
     }
@@ -515,6 +531,7 @@ void gameloop(Player *player, Player *opponent, MI0283QT9 lcd)
     if (buffer->xJoystick >= 50 && buffer->xJoystick <= 180 && buffer->yJoystick >= 20 && buffer->yJoystick <= 52)
     {
       move_down(player, lcd);
+      check_if_player_in_bomb_explosion();
       //send position
       sendPlayerPos(player->location_x, player->location_y);
     }
