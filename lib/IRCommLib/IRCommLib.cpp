@@ -15,8 +15,8 @@ Queue *sendBytesQueue;
 void initIRCommLib()
 {
   init_timer0();
-  receivedBytesQueue = ConstructQueue(6000);
-  sendBytesQueue = ConstructQueue(6000);
+  receivedBytesQueue = ConstructQueue(75);
+  sendBytesQueue = ConstructQueue(75);
 
   // Send a pointer to the function byteWasReceived as argument.
   // This can now be called by the ir_lib.
@@ -66,97 +66,98 @@ void sendScore(unsigned char *score)
 
 void byteWasReceived()
 {
+  Serial.println("as");
   unsigned char *byte = &Dequeue(receivedBytesQueue)->data.byte;
 
   switch (readingType)
+  {
+  case NONE:
+  {
+    if (*byte == PLAYER_POS || *byte == BOMB_PLACED || *byte == BOMB_EXPLODED || *byte == SCORE)
     {
-    case NONE:
-    {
-      if (*byte == PLAYER_POS || *byte == BOMB_PLACED || *byte == BOMB_EXPLODED || *byte == SCORE)
-        {
-          readingType = *byte;
-          readingPos = 0;
-        }
+      readingType = *byte;
+      readingPos = 0;
     }
+  }
+  break;
+
+  case PLAYER_POS:
+    if (readingPos == 0)
+    {
+      Serial.print("PlayerX: ");
+      Serial.write(*byte);
+      Serial.println();
+    }
+    else if (readingPos == 1)
+    {
+      Serial.print("PlayerY: ");
+      Serial.write(*byte);
+      Serial.println();
+      readingType = NONE;
+      readingPos = 0;
+    }
+
+    readingPos++;
     break;
 
-    case PLAYER_POS:
-      if (readingPos == 0)
-        {
-          Serial.print("PlayerX: ");
-          Serial.write(*byte);
-          Serial.println();
-        }
-      else if (readingPos == 1)
-        {
-          Serial.print("PlayerY: ");
-          Serial.write(*byte);
-          Serial.println();
-          readingType = NONE;
-          readingPos = 0;
-        }
-
-      readingPos++;
-      break;
-
-    case BOMB_PLACED:
-      if (readingPos == 0)
-        {
-          Serial.print("BombPlacedX: ");
-          Serial.write(*byte);
-          Serial.println();
-        }
-      else if (readingPos == 1)
-        {
-          Serial.print("BombPlacedY: ");
-          Serial.write(*byte);
-          Serial.println();
-        }
-      else if (readingPos == 2)
-        {
-          Serial.print("BombPlacedID: ");
-          Serial.write(*byte);
-          Serial.println();
-
-          readingType = NONE;
-          readingPos = 0;
-        }
-
-      readingPos++;
-      break;
-
-    case BOMB_EXPLODED:
-      if (readingPos == 0)
-        {
-          Serial.print("BombExplodedID: ");
-          Serial.write(*byte);
-          Serial.println();
-
-          readingType = NONE;
-          readingPos = 0;
-        }
-
-      readingPos++;
-      break;
-
-    case SCORE:
-      if (readingPos == 0)
-        {
-          Serial.print("Opponent's score: ");
-          Serial.write(*byte);
-          Serial.println();
-
-          readingType = NONE;
-          readingPos = 0;
-        }
-
-      readingPos++;
-      break;
-
-    default:
-      Serial.println("Nope, don't send this ...");
-      break;
+  case BOMB_PLACED:
+    if (readingPos == 0)
+    {
+      Serial.print("BombPlacedX: ");
+      Serial.write(*byte);
+      Serial.println();
     }
+    else if (readingPos == 1)
+    {
+      Serial.print("BombPlacedY: ");
+      Serial.write(*byte);
+      Serial.println();
+    }
+    else if (readingPos == 2)
+    {
+      Serial.print("BombPlacedID: ");
+      Serial.write(*byte);
+      Serial.println();
+
+      readingType = NONE;
+      readingPos = 0;
+    }
+
+    readingPos++;
+    break;
+
+  case BOMB_EXPLODED:
+    if (readingPos == 0)
+    {
+      Serial.print("BombExplodedID: ");
+      Serial.write(*byte);
+      Serial.println();
+
+      readingType = NONE;
+      readingPos = 0;
+    }
+
+    readingPos++;
+    break;
+
+  case SCORE:
+    if (readingPos == 0)
+    {
+      Serial.print("Opponent's score: ");
+      Serial.write(*byte);
+      Serial.println();
+
+      readingType = NONE;
+      readingPos = 0;
+    }
+
+    readingPos++;
+    break;
+
+  default:
+    Serial.println("Nope, don't send this ...");
+    break;
+  }
 
   free(byte);
 }
