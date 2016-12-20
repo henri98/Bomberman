@@ -525,7 +525,7 @@ void gameloop(Player *player, Player *opponent, MI0283QT9 lcd)
           move_up(player, lcd);
         }
       /* Move Down if Joystick down */
-      if (buffer->xJoystick >= 50 && buffer->xJoystick <= 180 && buffer->yJoystick >= 35 && buffer->yJoystick <= 52)
+      if (buffer->xJoystick >= 50 && buffer->xJoystick <= 180 && buffer->yJoystick >= 20 && buffer->yJoystick <= 52)
         {
           move_down(player, lcd);
         }
