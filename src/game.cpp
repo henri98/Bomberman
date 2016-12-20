@@ -387,14 +387,7 @@ void updateOpponent()
   while (opponent->location_x != getOpponentPos().location_x ||
          opponent->location_y != getOpponentPos().location_y)
   {
-    Serial.print(opponent->location_x);
-    Serial.print("\t");
-    Serial.print(getOpponentPos().location_x);
-    Serial.println();
-    Serial.print(opponent->location_y);
-    Serial.print("\t");
-    Serial.print(getOpponentPos().location_y);
-    Serial.println();
+
     if (opponent->location_x > getOpponentPos().location_x)
     {
       move_left(opponent, lcd);
