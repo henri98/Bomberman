@@ -12,8 +12,12 @@ uint8_t readingPos = 0;
 Queue *receivedBytesQueue;
 Queue *sendBytesQueue;
 
+upToDateOpponentPos oppPos;
+
 void initIRCommLib()
 {
+  // &upToDateOpponentPos = (OpponentPos *) malloc(sizeof(OpponentPos));
+
   init_timer0();
   receivedBytesQueue = ConstructQueue(75);
   sendBytesQueue = ConstructQueue(75);
@@ -85,13 +89,13 @@ void byteWasReceived()
     {
       Serial.print("PlayerX: ");
       Serial.println(*byte);
-      upToDateOpponentPos.location_x = (unsigned int) *byte;
+      oppPos.location_x = (unsigned int) *byte;
     }
     else if (readingPos == 1)
     {
       Serial.print("PlayerY: ");
       Serial.println(*byte);
-      upToDateOpponentPos.location_y = (unsigned int) *byte;
+      oppPos.location_y = (unsigned int) *byte;
       readingType = NONE;
       readingPos = 0;
     }

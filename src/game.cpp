@@ -385,11 +385,11 @@ void check_if_player_in_bomb_explosion()
 
 void updateOpponent()
 {
-  if (opponent->location_x != upToDateOpponentPos.location_x ||
-      opponent->location_y != upToDateOpponentPos.location_y)
-  {
-    // opponent pos changed, update / redraw opponent
-  }
+  // if (opponent->location_x != upToDateOpponentPos.location_x ||
+  //     opponent->location_y != upToDateOpponentPos.location_y)
+  // {
+  //   // opponent pos changed, update / redraw opponent
+  // }
 
   // Else, nothing to do ..
 }
