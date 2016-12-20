@@ -396,38 +396,6 @@ void gameloop(Player *player, Player *opponent, MI0283QT9 lcd)
       // delay(75);
       // delay(50);
       delay(75);
-      // check if opponent moved
-      // if ((opponent->location_x) > (getOpponentPosX()- '0'))
-      //   {
-      //     while ((opponent->location_x) != (getOpponentPosX()- '0'))
-      //       {
-      //         move_left(opponent, lcd);
-      //       }
-      //   }
-      //
-      // if ((opponent->location_x) < (getOpponentPosX()- '0'))
-      //   {
-      //     while ((opponent->location_x) != (getOpponentPosX()- '0'))
-      //       {
-      //         move_right(opponent, lcd);
-      //       }
-      //   }
-      //
-      // if ((opponent->location_y) > (getOpponentPosY()- '0'))
-      //   {
-      //     while ((opponent->location_y) != (getOpponentPosY()- '0'))
-      //       {
-      //         move_up(opponent, lcd);
-      //       }
-      //   }
-      //
-      // if ((opponent->location_y) < (getOpponentPosY()- '0'))
-      //   {
-      //     while ((opponent->location_y) != (getOpponentPosY()- '0'))
-      //       {
-      //         move_down(opponent, lcd);
-      //       }
-      //   }
 
       //check if bom has to explode
       if ( player->bomblist[0].time_placed + 3000 <=  millis() && player->bomblist[0].exploded != 1)
@@ -530,10 +498,10 @@ void gameloop(Player *player, Player *opponent, MI0283QT9 lcd)
           move_down(player, lcd);
         }
 
-      // //send position
-      // unsigned char xPos = player->location_x + '0';
-      // unsigned char yPos = player->location_y + '0';
-      // sendPlayerPos(&xPos, &yPos);
+      //send position
+      unsigned char xPos = player->location_x + '0';
+      unsigned char yPos = player->location_y + '0';
+      sendPlayerPos(&xPos, &yPos);
 
       if (buffer->zButton == 1)
         {

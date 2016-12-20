@@ -1,6 +1,5 @@
 #include "IRCommLib.h"
 
-// TODO: Dit wordt nu niet gebruikt, staat hardcoded in elke functie. Aanpassen dus!!!
 #define NONE 0x10
 #define PLAYER_POS 0x11
 #define BOMB_PLACED 0x12
@@ -13,8 +12,6 @@ uint8_t readingPos = 0;
 Queue *receivedBytesQueue;
 Queue *sendBytesQueue;
 
-Opponent *opponentPos;
-
 void initIRCommLib()
 {
   init_timer0();
@@ -25,8 +22,6 @@ void initIRCommLib()
   // This can now be called by the ir_lib.
   init_ir_receiver(receivedBytesQueue, &byteWasReceived);
   init_ir_sender(1, sendBytesQueue);
-
-  opponentPos = (Opponent *)malloc(sizeof(Opponent));
 }
 
 void sendByte(unsigned char *byte)
@@ -36,16 +31,6 @@ void sendByte(unsigned char *byte)
 
   Enqueue(sendBytesQueue, newNode);
   tryToDequeueByte();
-}
-
-unsigned char getOpponentPosX()
-{
-  return opponentPos->location_x;
-}
-
-unsigned char getOpponentPosY()
-{
-  return opponentPos->location_y;
 }
 
 void sendPlayerPos(unsigned char *x, unsigned char *y)
@@ -98,18 +83,15 @@ void byteWasReceived()
     case PLAYER_POS:
       if (readingPos == 0)
         {
-          opponentPos->location_x = *byte;
-          // Serial.print("PlayerX: ");
-          // Serial.write(*byte);
-          // Serial.println();
+          Serial.print("PlayerX: ");
+          Serial.write(*byte);
+          Serial.println();
         }
       else if (readingPos == 1)
         {
-          opponentPos->location_y = *byte;
-          // Serial.print("PlayerY: ");
-          // Serial.write(*byte);
-          // Serial.println();
-
+          Serial.print("PlayerY: ");
+          Serial.write(*byte);
+          Serial.println();
           readingType = NONE;
           readingPos = 0;
         }
