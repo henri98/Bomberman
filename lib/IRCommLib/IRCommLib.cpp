@@ -24,19 +24,19 @@ void initIRCommLib()
   init_ir_sender(1, sendBytesQueue);
 }
 
-void sendByte(unsigned char *byte)
+void sendByte(unsigned char byte)
 {
   NODE *newNode = (NODE *)malloc(sizeof(NODE));
-  newNode->data.byte = *byte;
+  newNode->data.byte = byte;
 
   Enqueue(sendBytesQueue, newNode);
   tryToDequeueByte();
 }
 
-void sendPlayerPos(unsigned char *x, unsigned char *y)
+void sendPlayerPos(unsigned char x, unsigned char y)
 {
   unsigned char type = PLAYER_POS;
-  sendByte(&type);
+  sendByte(type);
   sendByte(x);
   sendByte(y);
 }
@@ -66,7 +66,6 @@ void sendScore(unsigned char *score)
 
 void byteWasReceived()
 {
-  Serial.println("as");
   unsigned char *byte = &Dequeue(receivedBytesQueue)->data.byte;
 
   switch (readingType)
@@ -85,14 +84,16 @@ void byteWasReceived()
     if (readingPos == 0)
     {
       Serial.print("PlayerX: ");
-      Serial.write(*byte);
-      Serial.println();
+      // Serial.write(*byte);
+      Serial.println(*byte);
+      // Serial.println();
     }
     else if (readingPos == 1)
     {
       Serial.print("PlayerY: ");
-      Serial.write(*byte);
-      Serial.println();
+      // Serial.write(*byte);
+      Serial.println(*byte);
+      // Serial.println();
       readingType = NONE;
       readingPos = 0;
     }
