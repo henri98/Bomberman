@@ -389,6 +389,8 @@ void updateOpponent()
       opponent->location_y != getOpponentPos().location_y)
   {
     // opponent pos changed, update / redraw opponent
+    opponent->location_x = getOpponentPos().location_x;
+    opponent->location_y = getOpponentPos().location_y;
   }
   //Serial.println(opp);
   // Else, nothing to do ..
