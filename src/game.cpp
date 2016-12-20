@@ -499,9 +499,11 @@ void gameloop(Player *player, Player *opponent, MI0283QT9 lcd)
         }
 
       //send position
-      unsigned char xPos = player->location_x + '0';
-      unsigned char yPos = player->location_y + '0';
-      sendPlayerPos(&xPos, &yPos);
+      unsigned char * xPos = (unsigned char * ) malloc(sizeof(unsigned char));
+      *xPos = player->location_x + '0';
+      unsigned char * yPos = (unsigned char * ) malloc(sizeof(unsigned char));
+      *yPos = player->location_y + '0';
+      sendPlayerPos(xPos, yPos);
 
       if (buffer->zButton == 1)
         {
