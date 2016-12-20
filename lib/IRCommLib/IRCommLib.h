@@ -10,7 +10,7 @@ void sendBombPlaced(unsigned char x, unsigned char y, unsigned char ID);
 void sendBombExploded(unsigned char ID);
 void sendScore(unsigned char score);
 
-typedef struct OpponentPos {
+typedef struct {
   unsigned int location_x;
   unsigned int location_y;
-} upToDateOpponentPos;
+} OpponentPos;
