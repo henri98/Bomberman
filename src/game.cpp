@@ -383,6 +383,17 @@ void check_if_player_in_bomb_explosion()
   }
 }
 
+void updateOpponent()
+{
+  if (opponent->location_x != upToDateOpponentPos.location_x ||
+      opponent->location_y != upToDateOpponentPos.location_y)
+  {
+    // opponent pos changed, update / redraw opponent
+  }
+
+  // Else, nothing to do ..
+}
+
 /*
  * This is the game loop.
  */
@@ -505,6 +516,8 @@ void gameloop(Player *player, Player *opponent, MI0283QT9 lcd)
       //send position
       sendPlayerPos(player->location_x, player->location_y);
     }
+
+    updateOpponent();
 
     if (buffer->zButton == 1)
     {

@@ -41,7 +41,7 @@ void sendPlayerPos(unsigned char x, unsigned char y)
   sendByte(y);
 }
 
-void sendBombPlaced(unsigned char *x, unsigned char *y, unsigned char *ID)
+void sendBombPlaced(unsigned char x, unsigned char y, unsigned char ID)
 {
   unsigned char type = BOMB_PLACED;
   sendByte(&type);
@@ -50,14 +50,14 @@ void sendBombPlaced(unsigned char *x, unsigned char *y, unsigned char *ID)
   sendByte(ID);
 }
 
-void sendBombExploded(unsigned char *ID)
+void sendBombExploded(unsigned char ID)
 {
   unsigned char type = BOMB_EXPLODED;
   sendByte(&type);
   sendByte(ID);
 }
 
-void sendScore(unsigned char *score)
+void sendScore(unsigned char score)
 {
   unsigned char type = SCORE;
   sendByte(&type);
@@ -84,16 +84,14 @@ void byteWasReceived()
     if (readingPos == 0)
     {
       Serial.print("PlayerX: ");
-      // Serial.write(*byte);
       Serial.println(*byte);
-      // Serial.println();
+      upToDateOpponentPos.location_x = (unsigned int) *byte;
     }
     else if (readingPos == 1)
     {
       Serial.print("PlayerY: ");
-      // Serial.write(*byte);
       Serial.println(*byte);
-      // Serial.println();
+      upToDateOpponentPos.location_y = (unsigned int) *byte;
       readingType = NONE;
       readingPos = 0;
     }
