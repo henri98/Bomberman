@@ -482,28 +482,28 @@ void gameloop(Player *player, Player *opponent, MI0283QT9 lcd)
     {
       move_left(player, lcd);
       //send position
-      sendPlayerPos(player->location_x + '0', player->location_y + '0');
+      sendPlayerPos(player->location_x, player->location_y);
     }
     /* Move Right if Joystick to right */
     if (buffer->xJoystick >= 215 && buffer->xJoystick <= 235 && buffer->yJoystick >= 80 && buffer->yJoystick <= 175)
     {
       move_right(player, lcd);
       //send position
-      sendPlayerPos(player->location_x + '0', player->location_y + '0');
+      sendPlayerPos(player->location_x, player->location_y);
     }
     /* Move Up if Joystick up */
     if (buffer->xJoystick >= 50 && buffer->xJoystick <= 180 && buffer->yJoystick >= 200 && buffer->yJoystick <= 225)
     {
       move_up(player, lcd);
       //send position
-      sendPlayerPos(player->location_x + '0', player->location_y + '0');
+      sendPlayerPos(player->location_x, player->location_y);
     }
     /* Move Down if Joystick down */
     if (buffer->xJoystick >= 50 && buffer->xJoystick <= 180 && buffer->yJoystick >= 20 && buffer->yJoystick <= 52)
     {
       move_down(player, lcd);
       //send position
-      sendPlayerPos(player->location_x + '0', player->location_y + '0');
+      sendPlayerPos(player->location_x, player->location_y);
     }
 
     if (buffer->zButton == 1)
