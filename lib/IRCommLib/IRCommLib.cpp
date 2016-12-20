@@ -14,6 +14,11 @@ Queue *sendBytesQueue;
 
 OpponentPos upToDateOpponentPos;
 
+OpponentPos getOpponentPos()
+{
+  return upToDateOpponentPos;
+}
+
 void initIRCommLib()
 {
   // &upToDateOpponentPos = (OpponentPos *) malloc(sizeof(OpponentPos));

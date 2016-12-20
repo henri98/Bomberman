@@ -14,3 +14,5 @@ typedef struct {
   unsigned int location_x;
   unsigned int location_y;
 } OpponentPos;
+
+OpponentPos getOpponentPos();

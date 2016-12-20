@@ -385,12 +385,12 @@ void check_if_player_in_bomb_explosion()
 
 void updateOpponent()
 {
-  if (opponent->location_x != upToDateOpponentPos.location_x ||
-      opponent->location_y != upToDateOpponentPos.location_y)
+  if (opponent->location_x != getOpponentPos().location_x ||
+      opponent->location_y != getOpponentPos().location_y)
   {
     // opponent pos changed, update / redraw opponent
   }
-
+  //Serial.println(opp);
   // Else, nothing to do ..
 }
 
