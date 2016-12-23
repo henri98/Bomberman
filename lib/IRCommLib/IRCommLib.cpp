@@ -52,7 +52,7 @@ void initIRCommLib()
   {
     receivedBombs[i].location_x = 0;
     receivedBombs[i].location_y = 0;
-    receivedBombs[i].is_used = 1;
+    receivedBombs[i].is_used = 0;
   }
 }
 

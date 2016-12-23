@@ -379,6 +379,14 @@ void draw_bomb(Player *player, MI0283QT9 lcd)
       draw_object(lcd,player->bomblist[i].location_x*BLOCKSIZE,player->bomblist[i].location_y*BLOCKSIZE, bomb);
     }
   }
+
+  for (uint8_t i = 0; i < ARRAY_SIZE(opponent->bomblist); i++)
+  {
+    if (opponent->bomblist[i].exploded != 1 && opponent->bomblist[i].isExploding != 1)
+    {
+      draw_object(lcd,opponent->bomblist[i].location_x*BLOCKSIZE,opponent->bomblist[i].location_y*BLOCKSIZE, bomb);
+    }
+  }
 }
 
 void get_opponent_bombs()
@@ -392,6 +400,7 @@ void get_opponent_bombs()
       opponent->bomblist[i].exploded = 0;
       opponent->bomblist[i].isExploding = 0;
       opponent->bomblist[i].explosion_removed = 0;
+      getOpponentBombPos()[i].is_used = 1;
     }
   }
 }
@@ -616,6 +625,7 @@ void gameloop(Player *player, Player *opponent, MI0283QT9 lcd)
     }
 
     updateOpponent();
+    get_opponent_bombs();
 
     if (buffer->zButton == 1)
     {
