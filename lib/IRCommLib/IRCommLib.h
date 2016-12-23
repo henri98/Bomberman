@@ -5,15 +5,15 @@ void sendByte(unsigned char *byte);
 
 void byteWasReceived();
 
-void sendPlayerPos(unsigned char *x, unsigned char *y);
-void sendBombPlaced(unsigned char *x, unsigned char *y, unsigned char *ID);
-void sendBombExploded(unsigned char *ID);
-void sendScore(unsigned char *score);
+void sendPlayerPos(unsigned char x, unsigned char y);
+void sendBombPlaced(unsigned char x, unsigned char y, unsigned char ID);
+void sendBombExploded(unsigned char ID);
+void sendScore(unsigned char score);
 
 typedef struct {
-  unsigned char location_x;
-  unsigned char location_y;
-} Opponent;
+  unsigned int location_x;
+  unsigned int location_y;
+} OpponentPos;
 
-unsigned char getOpponentPosX();
-unsigned char getOpponentPosY();
+void setOpponentPos(unsigned int x, unsigned int y);
+OpponentPos getOpponentPos();
