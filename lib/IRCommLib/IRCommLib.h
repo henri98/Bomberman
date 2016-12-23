@@ -21,9 +21,6 @@ typedef struct {
   unsigned int is_used;
 } OpponentBombPos;
 
-OpponentBombPos receivedBombs[3];
-uint8_t receivingBombID;
-
 void setOpponentPos(unsigned int x, unsigned int y);
 OpponentPos getOpponentPos();
 // setter for OpponentBombPos getOpponentBombPos()???
