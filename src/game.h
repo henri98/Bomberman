@@ -22,6 +22,7 @@ typedef struct {
   unsigned char location_y;
   unsigned long time_placed;
   unsigned char exploded;
+  unsigned char isExploding;
   unsigned char explosion_removed;
 } Bomb;
 
@@ -31,7 +32,7 @@ typedef struct {
   unsigned int points;
   unsigned int lifes;
   uint_least16_t color;
-  Bomb bomblist[4];
+  Bomb bomblist[5];
 } Player;
 
 
