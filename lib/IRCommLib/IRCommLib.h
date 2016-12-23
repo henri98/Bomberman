@@ -15,5 +15,12 @@ typedef struct {
   unsigned int location_y;
 } OpponentPos;
 
+typedef struct {
+  unsigned int location_x;
+  unsigned int location_y;
+} OpponentBombPos;
+
 void setOpponentPos(unsigned int x, unsigned int y);
 OpponentPos getOpponentPos();
+// setter for OpponentBombPos getOpponentBombPos()???
+OpponentBombPos getOpponentBombPos();
