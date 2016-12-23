@@ -7,6 +7,8 @@
 #include <Nunchuck.h>
 #include <IRCommLib.h>
 #include <sprites.h>
+#include <avr/io.h>
+#include <brightness.h>
 
 #ifndef cbi
 #define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
@@ -34,6 +36,9 @@ typedef struct {
 
 
 void initinit();
+void menu();
+void init_ADC();
+int get_ADC();
 void generate_map();
 void init_player(Player *player1,int x,int y,int points, int lifes,  uint_least16_t color);
 void load_map(MI0283QT9 lcd);
