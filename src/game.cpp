@@ -17,6 +17,7 @@ MI0283QT9 lcd;
 Player *player;
 Player *opponent;
 
+
 /*
  * This function initializes timer0 for the LCD screan, initializes the player and opponent,
  * initializes the screen draws the player and starts the game loop.
@@ -62,6 +63,7 @@ void initinit()
 
   //for debugging
   Serial.begin(250000);
+  init_ADC();
 
   // init player and opponent
   player = (Player *)malloc(sizeof(Player));
@@ -86,6 +88,7 @@ void initinit()
   // start display and generate and load map
 
   init_display(lcd);
+  menu();
   generate_map();
   load_map(lcd);
 
@@ -97,6 +100,30 @@ void initinit()
 
   // start game loop
   gameloop(player, opponent, lcd);
+}
+
+void menu()
+{
+
+  lcd.fillScreen(black);
+  lcd.drawRect(20, 20, 280, 150, yellow);
+  draw_object(lcd, 120,  180, play_button);
+  lcd.drawText(140, 184, "START", white, black, 1);
+  lcd.drawText(140, 194, "HIGHSCORES", white, black, 1);
+  while(1)
+  {
+    lcd.led(get_ADC());
+
+    struct buf *buffer = (buf *)malloc(sizeof(struct buf));
+    nunchuck_get_data(buffer);
+    //todo: print coordinates to test nunchuck
+    if (buffer->xJoystick >= 95 && buffer->xJoystick <= 155 && buffer->yJoystick >= 35 && buffer->yJoystick <= 52)
+    {
+        lcd.drawRect(115, 180, 130, 190, background);
+        draw_object(lcd, 120,  190, play_button);
+      }
+    }
+  //delay(20000);
 }
 
 /*

@@ -29,6 +29,25 @@ static uint_least16_t background = RGB(103, 98, 96);
 void draw_object(MI0283QT9 lcd, int x, int y, const char sprite[16][16]);
 void draw_player_sprite(MI0283QT9 lcd, int x, int y, uint_least16_t c, const char sprite[24][16]);
 
+const char play_button[16][16] PROGMEM=
+{
+  {'b', 'b', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c'},
+  {'b', 'w', 'b', 'b', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c'},
+  {'b', 'w', 'w', 'w', 'b', 'b', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c'},
+  {'b', 'w', 'w', 'w', 'w', 'w', 'b', 'b', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c'},
+  {'b', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'b', 'b', 'c', 'c', 'c', 'c', 'c', 'c'},
+  {'b', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'b', 'b', 'c', 'c', 'c', 'c'},
+  {'b', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'b', 'b', 'c', 'c'},
+  {'b', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'b', 'b'},
+  {'b', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'b', 'b', 'c', 'c'},
+  {'b', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'b', 'b', 'c', 'c', 'c', 'c'},
+  {'b', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'b', 'b', 'c', 'c', 'c', 'c', 'c', 'c'},
+  {'b', 'w', 'w', 'w', 'w', 'w', 'b', 'b', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c'},
+  {'b', 'w', 'w', 'w', 'b', 'b', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c'},
+  {'b', 'w', 'b', 'b', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c'},
+  {'b', 'b', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c'}
+};
+
 const char life[16][16] PROGMEM =
 {
   {'c', 'c', 'c', 'b', 'b', 'b', 'c', 'c', 'c', 'c', 'b', 'b', 'b', 'c', 'c', 'c'},
