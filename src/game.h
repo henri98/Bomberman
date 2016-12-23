@@ -32,7 +32,7 @@ typedef struct {
   unsigned int points;
   unsigned int lifes;
   uint_least16_t color;
-  Bomb bomblist[5];
+  Bomb bomblist[3];
 } Player;
 
 

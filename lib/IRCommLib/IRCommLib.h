@@ -18,7 +18,11 @@ typedef struct {
 typedef struct {
   unsigned int location_x;
   unsigned int location_y;
+  unsigned int is_used;
 } OpponentBombPos;
+
+OpponentBombPos receivedBombs[3];
+uint8_t receivingBombID;
 
 void setOpponentPos(unsigned int x, unsigned int y);
 OpponentPos getOpponentPos();
