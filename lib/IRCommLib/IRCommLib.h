@@ -24,4 +24,4 @@ typedef struct {
 void setOpponentPos(unsigned int x, unsigned int y);
 OpponentPos getOpponentPos();
 // setter for OpponentBombPos getOpponentBombPos()???
-OpponentBombPos getOpponentBombPos();
+OpponentBombPos *getOpponentBombPos();
