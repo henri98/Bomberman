@@ -19,9 +19,11 @@ typedef struct {
   unsigned int location_x;
   unsigned int location_y;
   unsigned int is_used;
+  unsigned int id;
 } OpponentBombPos;
 
+extern OpponentPos upToDateOpponentPos;
+extern OpponentBombPos receivedBombs[3];
+extern uint8_t receivingBombID;
+
 void setOpponentPos(unsigned int x, unsigned int y);
-OpponentPos getOpponentPos();
-// setter for OpponentBombPos getOpponentBombPos()???
-OpponentBombPos *getOpponentBombPos();
