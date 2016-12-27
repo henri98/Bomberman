@@ -6,12 +6,9 @@
 #define WALL_EMPTY_RATIO  1
 #define BLOCKSIZE         16 //15
 
-#define MASTER            0 //master sends the seed for the map, the masters player start location is 1,1
-
-//@TODO!
-#define BOMTIME           3 //seconds
-
 #define ARRAY_SIZE( array ) ( sizeof( array ) / sizeof( array[0] ))
+
+unsigned int master =     0; //master sends the seed for the map, the masters player start location is 1,1
 
 char map_arr[MAP_HEIGHT][MAP_WIDTH];
 
@@ -52,7 +49,6 @@ void initinit()
   #else
           #error Timer 0 prescale factor 64 not set correctly
   #endif
-  // end part of arduino init() funciton
 
   // enable timer 0 overflow interrupt
   #if defined(TIMSK) && defined(TOIE0)
@@ -62,17 +58,31 @@ void initinit()
   #else
           #error  Timer 0 overflow interrupt not set correctly
   #endif
+  // end part of arduino init() funciton
 
   //for debugging
   Serial.begin(250000);
+
+  // init adc
   init_ADC();
 
   // init player and opponent
   player = (Player *)malloc(sizeof(Player));
   opponent = (Player *)malloc(sizeof(Player));
 
+
+
+// init comunication and Nunchuck
+  initIRCommLib();
+  nunchuck_init();
+
+  // start display and start menu
+
+  init_display(lcd);
+  //menu();
+
   //check if master
-  if (MASTER)
+  if (master)
     {
       init_player(player, 1, 1, 0, 3, blue);
       init_player(opponent, MAP_WIDTH-2, MAP_HEIGHT-2, 0, 3, green);
@@ -83,14 +93,7 @@ void initinit()
       init_player(opponent, 1, 1, 0, 3, green);
     }
 
-// init comunication and Nunchuck
-  initIRCommLib();
-  nunchuck_init();
-
-  // start display and generate and load map
-
-  init_display(lcd);
-  //menu();
+  //generate and load map
   generate_map();
   load_map(lcd);
 
@@ -125,7 +128,6 @@ void menu()
           draw_object(lcd, 120,  190, play_button);
         }
     }
-  //delay(20000);
 }
 
 /*
