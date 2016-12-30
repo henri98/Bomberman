@@ -132,6 +132,7 @@ void byteWasReceived()
       else if (readingPos == 3)
         {
           receivedBombs[receivingBombID].location_y = (unsigned int) *byte;
+          receivedBombs[receivingBombID].is_used = 0;
           readingType = NONE;
           readingPos = 0;
         }
