@@ -122,7 +122,6 @@ void menu()
       nunchuck_get_data(buffer);
       delay(5);
       //check if seed received from master!
-      //@TODO!
       if (received_seed)
         {
           seed = up_to_date_seed;
@@ -364,29 +363,26 @@ void check_if_player_in_bomb_explosion()
 void updateOpponent()
 {
   // opponent pos changed, update / redraw opponent
-  while (opponent->location_x != upToDateOpponentPos.location_x ||
-         opponent->location_y != upToDateOpponentPos.location_y)
+
+  if (opponent->location_x > upToDateOpponentPos.location_x)
     {
-
-      if (opponent->location_x >upToDateOpponentPos.location_x)
-        {
-          move_left(opponent, lcd);
-        }
-      else if (opponent->location_x < upToDateOpponentPos.location_x)
-        {
-          move_right(opponent, lcd);
-        }
-
-      if (opponent->location_y > upToDateOpponentPos.location_y)
-        {
-          move_up(opponent, lcd);
-        }
-      else if (opponent->location_y < upToDateOpponentPos.location_y)
-        {
-          move_down(opponent, lcd);
-        }
-
+      move_left(opponent, lcd);
     }
+  else if (opponent->location_x < upToDateOpponentPos.location_x)
+    {
+      move_right(opponent, lcd);
+    }
+
+  if (opponent->location_y > upToDateOpponentPos.location_y)
+    {
+      move_up(opponent, lcd);
+    }
+  else if (opponent->location_y < upToDateOpponentPos.location_y)
+    {
+      move_down(opponent, lcd);
+    }
+
+
   // Else, nothing to do ..
 }
 
@@ -398,6 +394,7 @@ void gameloop(Player *player, Player *opponent, MI0283QT9 lcd)
   setOpponentPos(opponent->location_x, opponent->location_y);
   while (1)
     {
+      delay(10);
       // struct buf *buffer;
       struct buf *buffer = (buf *)malloc(sizeof(struct buf));
       nunchuck_get_data(buffer);
@@ -407,10 +404,10 @@ void gameloop(Player *player, Player *opponent, MI0283QT9 lcd)
       updateOpponent();
       //get_opponent_bombs();
 
-      if (buffer->zButton == 1)
-        {
-          place_bomb(player);
-        }
+      // if (buffer->zButton == 1)
+      //   {
+      //     place_bomb(player);
+      //   }
       free(buffer);
     }
 }
@@ -423,7 +420,7 @@ void check_if_player_has_to_move(Player *player, struct buf *buffer)
       //send position
       sendPlayerPos(player->location_x-1, player->location_y);
       move_left(player, lcd);
-      check_if_player_in_bomb_explosion();
+      //check_if_player_in_bomb_explosion();
     }
   /* Move Right if Joystick to right */
   if (buffer->xJoystick >= 215 && buffer->xJoystick <= 235 && buffer->yJoystick >= 80 && buffer->yJoystick <= 175)
@@ -431,7 +428,7 @@ void check_if_player_has_to_move(Player *player, struct buf *buffer)
       //send position
       sendPlayerPos(player->location_x+1, player->location_y);
       move_right(player, lcd);
-      check_if_player_in_bomb_explosion();
+      //check_if_player_in_bomb_explosion();
     }
   /* Move Up if Joystick up */
   if (buffer->xJoystick >= 50 && buffer->xJoystick <= 180 && buffer->yJoystick >= 200 && buffer->yJoystick <= 225)
@@ -439,7 +436,7 @@ void check_if_player_has_to_move(Player *player, struct buf *buffer)
       //send position
       sendPlayerPos(player->location_x, player->location_y-1);
       move_up(player, lcd);
-      check_if_player_in_bomb_explosion();
+      //check_if_player_in_bomb_explosion();
     }
   /* Move Down if Joystick down */
   if (buffer->xJoystick >= 50 && buffer->xJoystick <= 180 && buffer->yJoystick >= 20 && buffer->yJoystick <= 52)
@@ -447,7 +444,7 @@ void check_if_player_has_to_move(Player *player, struct buf *buffer)
       //send position
       sendPlayerPos(player->location_x, player->location_y+1);
       move_down(player, lcd);
-      check_if_player_in_bomb_explosion();
+      //check_if_player_in_bomb_explosion();
     }
 }
 
