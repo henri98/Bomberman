@@ -8,7 +8,8 @@
 
 #define ARRAY_SIZE( array ) ( sizeof( array ) / sizeof( array[0] ))
 
-unsigned int master =     1; //master sends the seed for the map, the masters player start location is 1,1
+unsigned int master =     0; //master sends the seed for the map, the masters player start location is 1,1
+unsigned char seed;
 
 char map_arr[MAP_HEIGHT][MAP_WIDTH];
 
@@ -61,7 +62,7 @@ void initinit()
   // end part of arduino init() funciton
 
   //for debugging
-  Serial.begin(250000);
+  Serial.begin(2500000);
 
   // init adc
   init_ADC();
@@ -94,7 +95,7 @@ void initinit()
     }
 
   //generate and load map
-  generate_map(micros());
+  generate_map(seed);
   load_map(lcd);
 
   //draw player and opponent
@@ -120,8 +121,24 @@ void menu()
     {
       nunchuck_get_data(buffer);
       delay(5);
+      //check if seed received from master!
+      //@TODO!
+      if (received_seed)
+        {
+          seed = up_to_date_seed;
+          break;
+        }
     }
   while (buffer->zButton != 1);
+  if (!received_seed)
+    {
+      // make master
+      master = 1;
+      // get seed
+      seed = (char * ) (micros()/4);
+      // send seed
+      sendSeed(seed);
+    }
   free(buffer);
 }
 

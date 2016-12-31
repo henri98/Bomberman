@@ -5,6 +5,7 @@
 #define BOMB_PLACED 0x12
 #define BOMB_EXPLODED 0x13
 #define SCORE 0x14
+#define SEED 0x15
 
 #define ARRAY_SIZE( array ) ( sizeof( array ) / sizeof( array[0] ))
 
@@ -17,6 +18,9 @@ Queue *sendBytesQueue;
 OpponentPos upToDateOpponentPos;
 OpponentBombPos receivedBombs[3];
 uint8_t receivingBombID;
+
+uint8_t up_to_date_seed;
+uint8_t received_seed = 0;
 
 void setOpponentPos(unsigned int x, unsigned int y)
 {
@@ -85,6 +89,13 @@ void sendScore(unsigned char score)
   sendByte(score);
 }
 
+void sendSeed(unsigned char seed)
+{
+  unsigned char type = SEED;
+  sendByte(type);
+  sendByte(seed);
+}
+
 void byteWasReceived()
 {
   unsigned char *byte = &Dequeue(receivedBytesQueue)->data.byte;
@@ -93,9 +104,10 @@ void byteWasReceived()
     {
     case NONE:
     {
-      if (*byte == PLAYER_POS || *byte == BOMB_PLACED || *byte == BOMB_EXPLODED || *byte == SCORE)
+      if (*byte == PLAYER_POS || *byte == BOMB_PLACED || *byte == BOMB_EXPLODED || *byte == SCORE || *byte == SEED)
         {
           readingType = *byte;
+          Serial.println(readingType);
           readingPos = 0;
         }
     }
@@ -161,6 +173,19 @@ void byteWasReceived()
           Serial.write(*byte);
           Serial.println();
 
+          readingType = NONE;
+          readingPos = 0;
+        }
+
+      readingPos++;
+      break;
+
+    case SEED:
+      if (readingPos == 0)
+        {
+          Serial.println("Receiving seed!");
+          up_to_date_seed = *byte;
+          received_seed = 1;
           readingType = NONE;
           readingPos = 0;
         }
