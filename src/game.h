@@ -53,7 +53,7 @@ void place_bomb(Player *player);
 void draw_bomb(Player *player, MI0283QT9 lcd);
 void gameloop(Player *player, Player *opponent, MI0283QT9 lcd);
 void draw_lifes(Player *player, MI0283QT9 lcd, int opponent);
-void check_if_player_in_bomb_explosion(Player *player,  uint8_t oppontent);
+void check_if_player_in_bomb_explosion();
 void updateOpponent();
 void check_if_bomb_has_to_explode(Player *player, uint8_t oppontent);
 void check_if_player_has_to_move(Player *player, struct buf *buffer);

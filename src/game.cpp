@@ -80,32 +80,35 @@ void initinit()
   // start display and start menu
 
   init_display(lcd);
-  menu();
-
-  //check if master
-  if (master)
+  while (1)
     {
-      init_player(player, 1, 1, 0, 3, blue);
-      init_player(opponent, MAP_WIDTH-2, MAP_HEIGHT-2, 0, 3, green);
+      menu();
+
+      //check if master
+      if (master)
+        {
+          init_player(player, 1, 1, 0, 3, blue);
+          init_player(opponent, MAP_WIDTH-2, MAP_HEIGHT-2, 0, 3, green);
+        }
+      else
+        {
+          init_player(player, MAP_WIDTH-2, MAP_HEIGHT-2, 0, 3, blue);
+          init_player(opponent, 1, 1, 0, 3, green);
+        }
+
+      //generate and load map
+      generate_map(seed);
+      load_map(lcd);
+
+      //draw player and opponent
+      draw_player(player, lcd);
+      draw_player(opponent, lcd);
+      draw_lifes(player, lcd, 0);
+      draw_lifes(opponent, lcd, 1);
+
+      // start game loop
+      gameloop(player, opponent, lcd);
     }
-  else
-    {
-      init_player(player, MAP_WIDTH-2, MAP_HEIGHT-2, 0, 3, blue);
-      init_player(opponent, 1, 1, 0, 3, green);
-    }
-
-  //generate and load map
-  generate_map(seed);
-  load_map(lcd);
-
-  //draw player and opponent
-  draw_player(player, lcd);
-  draw_player(opponent, lcd);
-  draw_lifes(player, lcd, 0);
-  draw_lifes(opponent, lcd, 1);
-
-  // start game loop
-  gameloop(player, opponent, lcd);
 }
 
 void menu()
@@ -300,8 +303,6 @@ void get_opponent_bombs()
           opponent->bomblist[i].explosion_removed = 0;
           opponent->bomblist[i].time_placed = millis();
           receivedBombs[i].is_used = 1;
-          Serial.print(receivedBombs[i].location_x);
-          Serial.println(receivedBombs[i].location_y);
         }
     }
 }
@@ -325,7 +326,7 @@ void draw_lifes(Player *player, MI0283QT9 lcd, int opponent)
     }
   for (unsigned int q = 0; q < 3; q++)
     {
-      if (q< player->lifes)
+      if (q < player->lifes)
         {
           //  lcd.fillCircle(268 + (q*18), height + 20, 8, RGB(0,0,0));
           draw_object(lcd, 260 + (q*18), height + 12, life);
@@ -340,7 +341,7 @@ void draw_lifes(Player *player, MI0283QT9 lcd, int opponent)
   lcd.println(player->points);
 }
 
-void check_if_player_in_bomb_explosion(Player *player, uint8_t opponent)
+void check_if_player_in_bomb_explosion()
 {
   for (uint8_t i = 0; i < ARRAY_SIZE(player->bomblist); i++)
     {
@@ -355,10 +356,58 @@ void check_if_player_in_bomb_explosion(Player *player, uint8_t opponent)
             {
               player->lifes--;
             }
-          draw_lifes(player, lcd, opponent);
+          draw_lifes(player, lcd, 0);
+        }
+      if ((player->location_x == opponent->bomblist[i].location_x && player->location_y == opponent->bomblist[i].location_y && opponent->bomblist[i].exploded == 1 && opponent->bomblist[i].explosion_removed != 1) ||
+          (player->location_x == opponent->bomblist[i].location_x - 1 && player->location_y == opponent->bomblist[i].location_y && opponent->bomblist[i].exploded == 1 && opponent->bomblist[i].explosion_removed != 1) ||
+          (player->location_x == opponent->bomblist[i].location_x + 1 && player->location_y == opponent->bomblist[i].location_y && opponent->bomblist[i].exploded == 1 && opponent->bomblist[i].explosion_removed != 1) ||
+          (player->location_x == opponent->bomblist[i].location_x && player->location_y == opponent->bomblist[i].location_y - 1 && opponent->bomblist[i].exploded == 1 && opponent->bomblist[i].explosion_removed != 1)||
+          (player->location_x == opponent->bomblist[i].location_x && player->location_y == opponent->bomblist[i].location_y + 1 && opponent->bomblist[i].exploded == 1 && opponent->bomblist[i].explosion_removed != 1)
+          )
+        {
+          if (player->lifes != 0)
+            {
+              player->lifes--;
+              opponent->points += 250;
+            }
+          draw_lifes(player, lcd, 0);
+          draw_lifes(opponent, lcd, 1);
         }
     }
 
+
+
+  for (uint8_t i = 0; i < ARRAY_SIZE(opponent->bomblist); i++)
+    {
+      if ((opponent->location_x == opponent->bomblist[i].location_x && opponent->location_y == opponent->bomblist[i].location_y && opponent->bomblist[i].exploded == 1 && opponent->bomblist[i].explosion_removed != 1) ||
+          (opponent->location_x == opponent->bomblist[i].location_x - 1 && opponent->location_y == opponent->bomblist[i].location_y && opponent->bomblist[i].exploded == 1 && opponent->bomblist[i].explosion_removed != 1) ||
+          (opponent->location_x == opponent->bomblist[i].location_x + 1 && opponent->location_y == opponent->bomblist[i].location_y && opponent->bomblist[i].exploded == 1 && opponent->bomblist[i].explosion_removed != 1) ||
+          (opponent->location_x == opponent->bomblist[i].location_x && opponent->location_y == opponent->bomblist[i].location_y - 1 && opponent->bomblist[i].exploded == 1 && opponent->bomblist[i].explosion_removed != 1)||
+          (opponent->location_x == opponent->bomblist[i].location_x && opponent->location_y == opponent->bomblist[i].location_y + 1 && opponent->bomblist[i].exploded == 1 && opponent->bomblist[i].explosion_removed != 1)
+          )
+        {
+          if (opponent->lifes != 0)
+            {
+              opponent->lifes--;
+            }
+          draw_lifes(opponent, lcd, 1);
+        }
+      if ((opponent->location_x == player->bomblist[i].location_x && opponent->location_y == player->bomblist[i].location_y && player->bomblist[i].exploded == 1 && player->bomblist[i].explosion_removed != 1) ||
+          (opponent->location_x == player->bomblist[i].location_x - 1 && opponent->location_y == player->bomblist[i].location_y && player->bomblist[i].exploded == 1 && player->bomblist[i].explosion_removed != 1) ||
+          (opponent->location_x == player->bomblist[i].location_x + 1 && opponent->location_y == player->bomblist[i].location_y && player->bomblist[i].exploded == 1 && player->bomblist[i].explosion_removed != 1) ||
+          (opponent->location_x == player->bomblist[i].location_x && opponent->location_y == player->bomblist[i].location_y - 1 && player->bomblist[i].exploded == 1 && player->bomblist[i].explosion_removed != 1)||
+          (opponent->location_x == player->bomblist[i].location_x && opponent->location_y == player->bomblist[i].location_y + 1 && player->bomblist[i].exploded == 1 && player->bomblist[i].explosion_removed != 1)
+          )
+        {
+          if (opponent->lifes != 0)
+            {
+              opponent->lifes--;
+              player->points += 250;
+            }
+          draw_lifes(player, lcd, 0);
+          draw_lifes(opponent, lcd, 1);
+        }
+    }
 }
 
 void updateOpponent()
@@ -403,11 +452,11 @@ void gameloop(Player *player, Player *opponent, MI0283QT9 lcd)
       check_if_player_has_to_move(player, buffer);
       updateOpponent();
       get_opponent_bombs();
-
       if (buffer->zButton == 1)
         {
           place_bomb(player);
         }
+
       free(buffer);
     }
 }
@@ -499,7 +548,7 @@ void check_if_bomb_has_to_explode(Player *player, uint8_t oppontent)
             }
           draw_lifes(player, lcd, oppontent);
           //check if there is a player.
-          check_if_player_in_bomb_explosion(player, oppontent);
+          check_if_player_in_bomb_explosion();
         }
       //check if bom is exploded and animation has to be removed
       if ( player->bomblist[i].time_placed + 4000 <=  millis() && player->bomblist[i].explosion_removed != 1)
