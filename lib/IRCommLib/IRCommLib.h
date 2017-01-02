@@ -7,7 +7,6 @@ void byteWasReceived();
 
 void sendPlayerPos(unsigned char x, unsigned char y);
 void sendBombPlaced(unsigned char x, unsigned char y, unsigned char ID);
-void sendBombExploded(unsigned char ID);
 void sendScore(unsigned char score);
 void sendSeed(unsigned char seed);
 
@@ -17,10 +16,10 @@ typedef struct {
 } OpponentPos;
 
 typedef struct {
-  unsigned int location_x;
-  unsigned int location_y;
-  unsigned int is_used;
-  unsigned int id;
+  uint8_t location_x;
+  uint8_t location_y;
+  uint8_t is_used;
+  uint8_t id;
 } OpponentBombPos;
 
 extern OpponentPos upToDateOpponentPos;

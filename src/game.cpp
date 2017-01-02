@@ -62,7 +62,7 @@ void initinit()
   // end part of arduino init() funciton
 
   //for debugging
-  Serial.begin(2500000);
+  Serial.begin(250000);
 
   // init adc
   init_ADC();
@@ -134,7 +134,7 @@ void menu()
       // make master
       master = 1;
       // get seed
-      seed = (char * ) (micros()/4);
+      seed = (unsigned char) (micros()/4);
       // send seed
       sendSeed(seed);
     }
@@ -298,6 +298,7 @@ void get_opponent_bombs()
           opponent->bomblist[i].exploded = 0;
           opponent->bomblist[i].isExploding = 0;
           opponent->bomblist[i].explosion_removed = 0;
+          opponent->bomblist[i].time_placed = millis();
           receivedBombs[i].is_used = 1;
           Serial.print(receivedBombs[i].location_x);
           Serial.println(receivedBombs[i].location_y);
@@ -316,11 +317,11 @@ void draw_lifes(Player *player, MI0283QT9 lcd, int opponent)
   lcd.setCursor(261, height + 2);
   if (opponent)
     {
-      lcd.println("Player2");
+      lcd.println("Enemy");
     }
   else
     {
-      lcd.println("Player1");
+      lcd.println("You");
     }
   for (unsigned int q = 0; q < 3; q++)
     {
@@ -339,7 +340,7 @@ void draw_lifes(Player *player, MI0283QT9 lcd, int opponent)
   lcd.println(player->points);
 }
 
-void check_if_player_in_bomb_explosion()
+void check_if_player_in_bomb_explosion(Player *player, uint8_t opponent)
 {
   for (uint8_t i = 0; i < ARRAY_SIZE(player->bomblist); i++)
     {
@@ -354,10 +355,10 @@ void check_if_player_in_bomb_explosion()
             {
               player->lifes--;
             }
-          draw_lifes(player, lcd, 0);
-          //@TODO! send lifes
+          draw_lifes(player, lcd, opponent);
         }
     }
+
 }
 
 void updateOpponent()
@@ -381,8 +382,6 @@ void updateOpponent()
     {
       move_down(opponent, lcd);
     }
-
-
   // Else, nothing to do ..
 }
 
@@ -398,16 +397,17 @@ void gameloop(Player *player, Player *opponent, MI0283QT9 lcd)
       // struct buf *buffer;
       struct buf *buffer = (buf *)malloc(sizeof(struct buf));
       nunchuck_get_data(buffer);
-      delay(100);
-      //check_if_bomb_has_to_explode();
+      delay(90);
+      check_if_bomb_has_to_explode(player, 0);
+      check_if_bomb_has_to_explode(opponent, 1);
       check_if_player_has_to_move(player, buffer);
       updateOpponent();
-      //get_opponent_bombs();
+      get_opponent_bombs();
 
-      // if (buffer->zButton == 1)
-      //   {
-      //     place_bomb(player);
-      //   }
+      if (buffer->zButton == 1)
+        {
+          place_bomb(player);
+        }
       free(buffer);
     }
 }
@@ -448,7 +448,7 @@ void check_if_player_has_to_move(Player *player, struct buf *buffer)
     }
 }
 
-void check_if_bomb_has_to_explode()
+void check_if_bomb_has_to_explode(Player *player, uint8_t oppontent)
 {
   for (uint8_t i = 0; i < ARRAY_SIZE(player->bomblist); i++)
     {
@@ -464,17 +464,14 @@ void check_if_bomb_has_to_explode()
             {
               draw_object(lcd, (player->bomblist[i].location_x- 1) * BLOCKSIZE, player->bomblist[i].location_y * BLOCKSIZE, explosion_left);
             }
-
           if (map_arr[player->bomblist[i].location_y][player->bomblist[i].location_x + 1] != 'w')
             {
               draw_object(lcd, (player->bomblist[i].location_x + 1) * BLOCKSIZE, player->bomblist[i].location_y * BLOCKSIZE, explosion_right);
             }
-
           if (map_arr[player->bomblist[i].location_y - 1][player->bomblist[i].location_x] != 'w')
             {
               draw_object(lcd, player->bomblist[i].location_x * BLOCKSIZE, (player->bomblist[i].location_y-1) * BLOCKSIZE, explosion_top);
             }
-
           if (map_arr[player->bomblist[i].location_y + 1 ][player->bomblist[i].location_x] != 'w')
             {
               draw_object(lcd, player->bomblist[i].location_x * BLOCKSIZE, (player->bomblist[i].location_y+1) * BLOCKSIZE, explosion_bottom);
@@ -500,12 +497,11 @@ void check_if_bomb_has_to_explode()
               map_arr[player->bomblist[i].location_y + 1 ][player->bomblist[i].location_x] = 'n';
               player->points += 23;
             }
-          draw_lifes(player, lcd, 0);
+          draw_lifes(player, lcd, oppontent);
           //check if there is a player.
-          check_if_player_in_bomb_explosion();
+          check_if_player_in_bomb_explosion(player, oppontent);
         }
-
-      //check if bom is exploded and animation have to be removed
+      //check if bom is exploded and animation has to be removed
       if ( player->bomblist[i].time_placed + 4000 <=  millis() && player->bomblist[i].explosion_removed != 1)
         {
           lcd.fillRect(player->bomblist[i].location_x*BLOCKSIZE,player->bomblist[i].location_y*BLOCKSIZE,BLOCKSIZE,BLOCKSIZE,background);
@@ -513,17 +509,14 @@ void check_if_bomb_has_to_explode()
             {
               lcd.fillRect((player->bomblist[i].location_x - 1)*BLOCKSIZE,player->bomblist[i].location_y*BLOCKSIZE,BLOCKSIZE,BLOCKSIZE,background);
             }
-
           if (map_arr[player->bomblist[i].location_y][player->bomblist[i].location_x + 1] != 'w')
             {
               lcd.fillRect((player->bomblist[i].location_x + 1)*BLOCKSIZE,player->bomblist[i].location_y*BLOCKSIZE,BLOCKSIZE,BLOCKSIZE,background);
             }
-
           if (map_arr[player->bomblist[i].location_y - 1][player->bomblist[i].location_x] != 'w')
             {
               lcd.fillRect(player->bomblist[i].location_x*BLOCKSIZE,(player->bomblist[i].location_y - 1)*BLOCKSIZE,BLOCKSIZE,BLOCKSIZE,background);
             }
-
           if (map_arr[player->bomblist[i].location_y + 1 ][player->bomblist[i].location_x] != 'w')
             {
               lcd.fillRect(player->bomblist[i].location_x*BLOCKSIZE,(player->bomblist[i].location_y + 1)*BLOCKSIZE,BLOCKSIZE,BLOCKSIZE,background);

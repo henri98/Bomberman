@@ -3,9 +3,9 @@
 #define NONE 0x10
 #define PLAYER_POS 0x11
 #define BOMB_PLACED 0x12
-#define BOMB_EXPLODED 0x13
-#define SCORE 0x14
-#define SEED 0x15
+#define SCORE 0x13
+#define SEED 0x14
+
 
 #define ARRAY_SIZE( array ) ( sizeof( array ) / sizeof( array[0] ))
 
@@ -75,13 +75,6 @@ void sendBombPlaced(unsigned char x, unsigned char y, unsigned char ID)
   sendByte(y);
 }
 
-void sendBombExploded(unsigned char ID)
-{
-  unsigned char type = BOMB_EXPLODED;
-  sendByte(type);
-  sendByte(ID);
-}
-
 void sendScore(unsigned char score)
 {
   unsigned char type = SCORE;
@@ -104,10 +97,9 @@ void byteWasReceived()
     {
     case NONE:
     {
-      if (*byte == PLAYER_POS || *byte == BOMB_PLACED || *byte == BOMB_EXPLODED || *byte == SCORE || *byte == SEED)
+      if (*byte == PLAYER_POS || *byte == BOMB_PLACED || *byte == SCORE || *byte == SEED)
         {
           readingType = *byte;
-          Serial.println(readingType);
           readingPos = 0;
         }
     }
@@ -132,33 +124,16 @@ void byteWasReceived()
       if (readingPos == 0)
         {
           receivingBombID = (unsigned int) *byte;
+          receivedBombs[receivingBombID].id = (unsigned int) *byte;
         }
       else if (readingPos == 1)
         {
-          receivedBombs[receivingBombID].id = (unsigned int) *byte;
+          receivedBombs[receivingBombID].location_x = (unsigned int) *byte;
         }
       else if (readingPos == 2)
         {
-          receivedBombs[receivingBombID].location_x = (unsigned int) *byte;
-        }
-      else if (readingPos == 3)
-        {
           receivedBombs[receivingBombID].location_y = (unsigned int) *byte;
           receivedBombs[receivingBombID].is_used = 0;
-          readingType = NONE;
-          readingPos = 0;
-        }
-
-      readingPos++;
-      break;
-
-    case BOMB_EXPLODED:
-      if (readingPos == 0)
-        {
-          Serial.print("BombExplodedID: ");
-          Serial.write(*byte);
-          Serial.println();
-
           readingType = NONE;
           readingPos = 0;
         }
