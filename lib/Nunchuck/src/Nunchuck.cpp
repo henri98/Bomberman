@@ -38,52 +38,100 @@ bool nunchuck_get_data(struct buf *buffer)
   Wire.requestFrom(NUNCHUCK_ADDR, 6);
 
   while (Wire.available())
-  {
-
-    switch (count)
     {
 
-#if USE_NUNCHUCK_JOYSTICK
-      case 0: // X Joystick
-        buffer->xJoystick = nunchuck_decode_byte(Wire.read());
-        break;
+      switch (count)
+        {
 
-      case 1: // Y Joystick
-        buffer->yJoystick = nunchuck_decode_byte(Wire.read());
-        break;
+#if USE_NUNCHUCK_JOYSTICK
+        case 0: // X Joystick
+          buffer->xJoystick = nunchuck_decode_byte(Wire.read());
+          break;
+
+        case 1: // Y Joystick
+          buffer->yJoystick = nunchuck_decode_byte(Wire.read());
+          break;
 #endif
 
 #if USE_NUNCHUCK_MOVEMENT
-      case 2: // X Acceleration
-        buffer->xAccel = nunchuck_decode_byte(Wire.read());
-        break;
+        case 2: // X Acceleration
+          buffer->xAccel = nunchuck_decode_byte(Wire.read());
+          break;
 
-      case 3: // Y Acceleration
-        buffer->yAccel = nunchuck_decode_byte(Wire.read());
-        break;
+        case 3: // Y Acceleration
+          buffer->yAccel = nunchuck_decode_byte(Wire.read());
+          break;
 
-      case 4: // Z Acceleration
-        buffer->zAccel = nunchuck_decode_byte(Wire.read());
-        break;
+        case 4: // Z Acceleration
+          buffer->zAccel = nunchuck_decode_byte(Wire.read());
+          break;
 #endif
 
-      case 5: // C / Z Buttons
-      {
-        char tempChar = (char) nunchuck_decode_byte(Wire.read());
-        buffer->zButton = ((tempChar >> 0) & 1) ? false : true;
-        buffer->cButton = ((tempChar >> 1) & 1) ? false : true;
-      }
+        case 5: // C / Z Buttons
+        {
+          char tempChar = (char) nunchuck_decode_byte(Wire.read());
+          buffer->zButton = ((tempChar >> 0) & 1) ? false : true;
+          buffer->cButton = ((tempChar >> 1) & 1) ? false : true;
+        }
         break;
 
-      default:
-        Wire.read();
-        break;
+        default:
+          Wire.read();
+          break;
+        }
+
+      count++;
     }
-
-    count++;
-  }
 
   nunchuck_request(); // Request new data
 
   return (count <= 5) ? true : false; // Success / Fail
+}
+
+int check_if_joystick_down(struct buf *buffer)
+{
+  if (buffer->xJoystick >= 50 && buffer->xJoystick <= 180 && buffer->yJoystick >= 20 && buffer->yJoystick <= 52)
+    {
+      return 1;
+    }
+  else
+    {
+      return 0;
+    }
+}
+
+int check_if_joystick_up(struct buf *buffer)
+{
+  if (buffer->xJoystick >= 50 && buffer->xJoystick <= 180 && buffer->yJoystick >= 200 && buffer->yJoystick <= 225)
+    {
+      return 1;
+    }
+  else
+    {
+      return 0;
+    }
+}
+
+int check_if_joystick_left(struct buf *buffer)
+{
+  if (buffer->xJoystick >= 25 && buffer->xJoystick <= 50 && buffer->yJoystick >= 80 && buffer->yJoystick <= 175)
+    {
+      return 1;
+    }
+  else
+    {
+      return 0;
+    }
+}
+
+int check_if_joystick_right(struct buf *buffer)
+{
+  if (buffer->xJoystick >= 215 && buffer->xJoystick <= 235 && buffer->yJoystick >= 80 && buffer->yJoystick <= 175)
+    {
+      return 1;
+    }
+  else
+    {
+      return 0;
+    }
 }

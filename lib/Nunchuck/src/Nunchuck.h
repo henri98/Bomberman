@@ -10,18 +10,18 @@
 
 // This struct is used to represent the Nunchuck's data
 typedef struct buf {
-    bool zButton;
-    bool cButton;
+  bool zButton;
+  bool cButton;
 
 #if USE_NUNCHUCK_JOYSTICK
-    uint8_t xJoystick;
-    uint8_t yJoystick;
+  uint8_t xJoystick;
+  uint8_t yJoystick;
 #endif
 
 #if USE_NUNCHUCK_MOVEMENT
-    uint8_t xAccel;
-    uint8_t yAccel;
-    uint8_t zAccel;
+  uint8_t xAccel;
+  uint8_t yAccel;
+  uint8_t zAccel;
 #endif
 
 } buf;
@@ -32,3 +32,9 @@ void nunchuck_init();
 // This function will request data from the Nunchuck and
 // put it in the given struct
 bool nunchuck_get_data(struct buf *buffer);
+
+// functions to check the Joystick status
+int check_if_joystick_down(struct buf *buffer);
+int check_if_joystick_up(struct buf *buffer);
+int check_if_joystick_left(struct buf *buffer);
+int check_if_joystick_right(struct buf *buffer);

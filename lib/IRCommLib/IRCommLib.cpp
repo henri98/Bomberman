@@ -113,6 +113,10 @@ void byteWasReceived()
       else if (readingPos == 1)
         {
           upToDateOpponentPos.location_y = (unsigned int) *byte;
+          Serial.println("POS: ");
+          Serial.println(upToDateOpponentPos.location_x);
+          Serial.println(upToDateOpponentPos.location_y);
+          Serial.println();
           readingType = NONE;
           readingPos = 0;
         }

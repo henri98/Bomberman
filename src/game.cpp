@@ -3,7 +3,7 @@
 #define MAP_WIDTH         16 //18
 #define MAP_HEIGHT        15 //16
 #define SURROUND_WALLS    1
-#define WALL_EMPTY_RATIO  3
+#define WALL_EMPTY_RATIO  2
 #define BLOCKSIZE         16 //15
 
 #define ARRAY_SIZE( array ) ( sizeof( array ) / sizeof( array[0] ))
@@ -71,67 +71,18 @@ void initinit()
   player = (Player *)malloc(sizeof(Player));
   opponent = (Player *)malloc(sizeof(Player));
 
-
-
   // init comunication and Nunchuck
   initIRCommLib();
   nunchuck_init();
 
   // start display and start menu
-
   init_display(lcd);
-  while (1)
-    {
-      menu();
 
-      //check if master
-      if (master)
-        {
-          init_player(player, 1, 1, 0, 3, blue);
-          init_player(opponent, MAP_WIDTH-2, MAP_HEIGHT-2, 0, 3, green);
-        }
-      else
-        {
-          init_player(player, MAP_WIDTH-2, MAP_HEIGHT-2, 0, 3, blue);
-          init_player(opponent, 1, 1, 0, 3, green);
-        }
-
-      //generate and load map
-      generate_map(seed);
-      load_map(lcd);
-
-      //draw player and opponent
-      draw_player(player, lcd);
-      draw_player(opponent, lcd);
-      draw_lifes(player, lcd, 0);
-      draw_lifes(opponent, lcd, 1);
-
-      // start game loop
-      gameloop(player, opponent, lcd);
-    }
+  menu();
 }
 
-void menu()
+void start_game()
 {
-  lcd.fillScreen(black);
-  lcd.led(100);
-  lcd.drawRect(20, 20, 280, 150, yellow);
-  draw_object(lcd, 120,  180, play_button);
-  lcd.drawText(140, 184, "START", white, black, 1);
-  lcd.drawText(140, 194, "HIGHSCORES", white, black, 1);
-  struct buf *buffer = (buf *)malloc(sizeof(struct buf));
-  do
-    {
-      nunchuck_get_data(buffer);
-      delay(5);
-      //check if seed received from master!
-      if (received_seed)
-        {
-          seed = up_to_date_seed;
-          break;
-        }
-    }
-  while (buffer->zButton != 1);
   if (!received_seed)
     {
       // make master
@@ -141,6 +92,142 @@ void menu()
       // send seed
       sendSeed(seed);
     }
+
+  //check if master
+  if (master)
+    {
+      init_player(player, 1, 1, 0, 3, blue);
+      init_player(opponent, MAP_WIDTH-2, MAP_HEIGHT-2, 0, 3, green);
+    }
+  else
+    {
+      init_player(player, MAP_WIDTH-2, MAP_HEIGHT-2, 0, 3, blue);
+      init_player(opponent, 1, 1, 0, 3, green);
+    }
+
+  //generate and load map
+  generate_map(seed);
+  load_map(lcd);
+
+  //draw player and opponent
+  draw_player(player, lcd);
+  draw_player(opponent, lcd);
+  draw_lifes(player, lcd, 0);
+  draw_lifes(opponent, lcd, 1);
+
+  // start game loop
+  gameloop(player, opponent, lcd);
+}
+
+void stop_game()
+{
+  lcd.fillScreen(black);
+  if (player->lifes == opponent->lifes)
+    {
+      lcd.println("Gelijkspel");
+      save_score(player->points);
+    }
+  else if (player->lifes > opponent->lifes)
+    {
+      lcd.println("You  win");
+      save_score(player->points);
+    }
+  else if (player->lifes < opponent->lifes)
+    {
+      lcd.println("You lost");
+      save_score(opponent->points);
+    }
+  delay (5000);
+}
+
+void menu()
+{
+  lcd.fillScreen(black);
+  lcd.led(100);
+  lcd.drawRect(20, 20, 280, 150, yellow);
+
+  int menu[2] = {0, 1};
+  uint8_t selected_menu_item = 0;
+  uint8_t previous_selected_menu_item = 0;
+  uint8_t previous_selected_menu_item_removed = 1;
+  struct buf *buffer = (buf *)malloc(sizeof(struct buf));
+  do
+    {
+      for (size_t i = 0; i < ARRAY_SIZE(menu); i++)
+        {
+          if (menu[i] == 0)
+            {
+              lcd.drawText(140, 184 + (i * 10), "START", white, black, 1);
+            }
+          if (menu[i] == 1)
+            {
+              lcd.drawText(140, 184 + (i * 10), "HIGHSCORES", white, black, 1);
+
+            }
+          if (selected_menu_item == i)
+            {
+              if (previous_selected_menu_item_removed == 0)
+                {
+                  lcd.fillRect(120, 184 + (previous_selected_menu_item * 10) - 4, 16, 16, black);
+                  previous_selected_menu_item_removed = 1;
+                }
+              draw_object(lcd, 120,  184 + (i * 10) - 4, play_button);
+            }
+        }
+      nunchuck_get_data(buffer);
+      delay(5);
+      //check if seed received from master!
+      if (received_seed)
+        {
+          seed = up_to_date_seed;
+          break;
+        }
+      if (check_if_joystick_up(buffer))
+        {
+          if (selected_menu_item != 0)
+            {
+              previous_selected_menu_item = selected_menu_item;
+              previous_selected_menu_item_removed = 0;
+              selected_menu_item--;
+            }
+        }
+      if (check_if_joystick_down(buffer))
+        {
+          if (selected_menu_item < ARRAY_SIZE(menu)-1)
+            {
+              previous_selected_menu_item = selected_menu_item;
+              previous_selected_menu_item_removed = 0;
+              selected_menu_item++;
+            }
+        }
+    }
+  while (buffer->zButton != 1);
+  free(buffer);
+  if (selected_menu_item == 0)
+    {
+      start_game();
+    }
+  if (selected_menu_item == 1)
+    {
+      highscores();
+    }
+}
+
+void highscores()
+{
+  lcd.fillScreen(blue);
+  struct buf *buffer = (buf *)malloc(sizeof(struct buf));
+  for (size_t i = 0; i < 5; i++)
+    {
+      lcd.println(EEPROM_read_uint16_t(0 + (i * 2)));
+    }
+  do
+    {
+      nunchuck_get_data(buffer);
+      delay(5);
+      Serial.println(buffer->zButton);
+    }
+  while (buffer->zButton != 1);
   free(buffer);
 }
 
@@ -375,8 +462,6 @@ void check_if_player_in_bomb_explosion()
         }
     }
 
-
-
   for (uint8_t i = 0; i < ARRAY_SIZE(opponent->bomblist); i++)
     {
       if ((opponent->location_x == opponent->bomblist[i].location_x && opponent->location_y == opponent->bomblist[i].location_y && opponent->bomblist[i].exploded == 1 && opponent->bomblist[i].explosion_removed != 1) ||
@@ -456,7 +541,11 @@ void gameloop(Player *player, Player *opponent, MI0283QT9 lcd)
         {
           place_bomb(player);
         }
-
+      if (player->lifes == 0 || opponent->lifes == 0)
+        {
+          stop_game();
+          break;
+        }
       free(buffer);
     }
 }
@@ -464,7 +553,7 @@ void gameloop(Player *player, Player *opponent, MI0283QT9 lcd)
 void check_if_player_has_to_move(Player *player, struct buf *buffer)
 {
   /* Move Left if Joystick to left */
-  if (buffer->xJoystick >= 25 && buffer->xJoystick <= 50 && buffer->yJoystick >= 80 && buffer->yJoystick <= 175)
+  if (check_if_joystick_left(buffer))
     {
       //send position
       sendPlayerPos(player->location_x-1, player->location_y);
@@ -472,7 +561,7 @@ void check_if_player_has_to_move(Player *player, struct buf *buffer)
       //check_if_player_in_bomb_explosion();
     }
   /* Move Right if Joystick to right */
-  if (buffer->xJoystick >= 215 && buffer->xJoystick <= 235 && buffer->yJoystick >= 80 && buffer->yJoystick <= 175)
+  if (check_if_joystick_right(buffer))
     {
       //send position
       sendPlayerPos(player->location_x+1, player->location_y);
@@ -480,7 +569,7 @@ void check_if_player_has_to_move(Player *player, struct buf *buffer)
       //check_if_player_in_bomb_explosion();
     }
   /* Move Up if Joystick up */
-  if (buffer->xJoystick >= 50 && buffer->xJoystick <= 180 && buffer->yJoystick >= 200 && buffer->yJoystick <= 225)
+  if (check_if_joystick_up(buffer))
     {
       //send position
       sendPlayerPos(player->location_x, player->location_y-1);
@@ -488,7 +577,7 @@ void check_if_player_has_to_move(Player *player, struct buf *buffer)
       //check_if_player_in_bomb_explosion();
     }
   /* Move Down if Joystick down */
-  if (buffer->xJoystick >= 50 && buffer->xJoystick <= 180 && buffer->yJoystick >= 20 && buffer->yJoystick <= 52)
+  if (check_if_joystick_down(buffer))
     {
       //send position
       sendPlayerPos(player->location_x, player->location_y+1);

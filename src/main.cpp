@@ -2,5 +2,8 @@
 
 int main()
 {
-  initinit();
+  while (1)
+    {
+      initinit();
+    }
 }

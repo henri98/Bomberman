@@ -9,6 +9,7 @@
 #include <sprites.h>
 #include <avr/io.h>
 #include <brightness.h>
+#include <mem.h>
 
 #ifndef cbi
 #define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
@@ -57,3 +58,6 @@ void check_if_player_in_bomb_explosion();
 void updateOpponent();
 void check_if_bomb_has_to_explode(Player *player, uint8_t oppontent);
 void check_if_player_has_to_move(Player *player, struct buf *buffer);
+void highscores();
+void start_game();
+void stop_game();
