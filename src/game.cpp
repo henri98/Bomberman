@@ -129,12 +129,24 @@ void stop_game()
     }
   else if (player->lifes > opponent->lifes)
     {
-      lcd.println("You  win");
+      lcd.drawText(90, 80, "You Win!", green, RGB(0,0,0), 2);
+      lcd.setCursor(110,140);
+      lcd.setTextColor(white, black);
+      lcd.print("Score:");
+      lcd.setCursor(170,140);
+      lcd.print(player->points);
+
       save_score(player->points);
     }
   else if (player->lifes < opponent->lifes)
     {
-      lcd.println("You lost");
+      lcd.drawText(70, 80, "You Lose :(", red, RGB(0,0,0), 2);
+      lcd.setCursor(110,140);
+      lcd.setTextColor(white, black);
+      lcd.print("Score:");
+      lcd.setCursor(170,140);
+      lcd.print(player->points);
+
       save_score(opponent->points);
     }
   delay (5000);
@@ -144,7 +156,11 @@ void menu()
 {
   lcd.fillScreen(black);
   lcd.led(100);
-  lcd.drawRect(20, 20, 280, 150, yellow);
+  lcd.drawRect(19, 19, 280, 150, red);
+  lcd.drawRect(20, 20, 280, 150, red);
+  lcd.drawRect(21, 21, 280, 150, red);
+  lcd.drawRect(22, 22, 280, 150, red);
+  lcd.drawText(51, 80, "BOMBERMAN", yellow, RGB(0,0,0), 3);
 
   int menu[2] = {0, 1};
   uint8_t selected_menu_item = 0;
@@ -157,21 +173,21 @@ void menu()
         {
           if (menu[i] == 0)
             {
-              lcd.drawText(140, 184 + (i * 10), "START", white, black, 1);
+              lcd.drawText(140, 194 + (i * 10), "START", white, black, 1);
             }
           if (menu[i] == 1)
             {
-              lcd.drawText(140, 184 + (i * 10), "HIGHSCORES", white, black, 1);
+              lcd.drawText(140, 194 + (i * 10), "HIGHSCORES", white, black, 1);
 
             }
           if (selected_menu_item == i)
             {
               if (previous_selected_menu_item_removed == 0)
                 {
-                  lcd.fillRect(120, 184 + (previous_selected_menu_item * 10) - 4, 16, 16, black);
+                  lcd.fillRect(120, 194 + (previous_selected_menu_item * 10) - 4, 16, 16, black);
                   previous_selected_menu_item_removed = 1;
                 }
-              draw_object(lcd, 120,  184 + (i * 10) - 4, play_button);
+              draw_object(lcd, 120,  194 + (i * 10) - 4, play_button);
             }
         }
       nunchuck_get_data(buffer);
@@ -213,19 +229,72 @@ void menu()
     }
 }
 
+
+
+int compare( const void* a, const void* b)
+{
+     int int_a = * ( (int*) a );
+     int int_b = * ( (int*) b );
+
+     if ( int_a == int_b ) return 0;
+     else if ( int_a < int_b ) return 1;
+     else return -1;
+}
+
 void highscores()
 {
-  lcd.fillScreen(blue);
+  lcd.fillScreen(black);
   struct buf *buffer = (buf *)malloc(sizeof(struct buf));
+  int margin = 0;
+  const char *names[5];
+  names[0] = "Platinum";
+  names[1] = "Gold";
+  names[2] = "Silver";
+  names[3] = "Bronze";
+  names[4] = "Copper";
+  lcd.drawText(80, 25, "HIGHSCORES", white, RGB(0,0,0), 2);
+  int highscores[5];
+
+
+
   for (size_t i = 0; i < 5; i++)
     {
-      lcd.println(EEPROM_read_uint16_t(0 + (i * 2)));
+     highscores[i] = EEPROM_read_uint16_t(0 + (i * 2));
+    }
+
+
+
+    qsort(highscores, 5, sizeof(int), compare );
+
+
+  for (size_t i = 0; i < 5; i++)
+    {
+      lcd.drawText(80, 80 + margin, names[i], white, RGB(0,0,0), 1);
+  //    lcd.drawText(200, 80 + margin, (char) test[i], white, RGB(0,0,0), 1);
+      lcd.setCursor(200,80 + margin);
+
+
+      lcd.setTextColor(white, black);
+
+      lcd.println(highscores[i]);
+
+
+
+
+      lcd.drawRect(60, 75 + margin, 200, 20, red);
+      lcd.drawRect(59, 74 + margin, 200, 20, red);
+
+      margin = margin + 30;
+
+
+
+
     }
   do
     {
       nunchuck_get_data(buffer);
       delay(5);
-      Serial.println(buffer->zButton);
+    //  Serial.println(buffer->zButton);
     }
   while (buffer->zButton != 1);
   free(buffer);
