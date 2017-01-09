@@ -216,6 +216,7 @@ void menu()
               selected_menu_item++;
             }
         }
+      lcd.led(get_ADC());
     }
   while (buffer->zButton != 1);
   free(buffer);
@@ -294,8 +295,7 @@ void highscores()
     {
       nunchuck_get_data(buffer);
       delay(5);
-    //  Serial.println(buffer->zButton);
-    }
+  	  lcd.led(get_ADC());    }
   while (buffer->zButton != 1);
   free(buffer);
 }
@@ -596,6 +596,7 @@ void gameloop(Player *player, Player *opponent, MI0283QT9 lcd)
   setOpponentPos(opponent->location_x, opponent->location_y);
   while (1)
     {
+      lcd.led(get_ADC());
       delay(10);
       // struct buf *buffer;
       struct buf *buffer = (buf *)malloc(sizeof(struct buf));
