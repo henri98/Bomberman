@@ -113,10 +113,6 @@ void byteWasReceived()
     else if (readingPos == 1)
     {
       upToDateOpponentPos.location_y = (unsigned int) *byte;
-      Serial.println("POS: ");
-      Serial.println(upToDateOpponentPos.location_x);
-      Serial.println(upToDateOpponentPos.location_y);
-      Serial.println();
       readingType = NONE;
       readingPos = 0;
     }
@@ -148,10 +144,6 @@ void byteWasReceived()
   case SCORE:
     if (readingPos == 0)
     {
-      Serial.print("Opponent's score: ");
-      Serial.write(*byte);
-      Serial.println();
-
       readingType = NONE;
       readingPos = 0;
     }
@@ -162,7 +154,6 @@ void byteWasReceived()
   case SEED:
     if (readingPos == 0)
     {
-      Serial.println("Receiving seed!");
       up_to_date_seed = *byte;
       received_seed = 1;
       readingType = NONE;
@@ -173,7 +164,6 @@ void byteWasReceived()
     break;
 
   default:
-    Serial.println("Nope, don't send this ...");
     break;
   }
 
