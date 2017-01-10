@@ -232,7 +232,7 @@ void menu()
 
 
 
-int compare( const void* a, const void* b)
+int compare(const void* a, const void* b)
 {
   int int_a = *( (int*) a );
   int int_b = *( (int*) b );
@@ -380,7 +380,6 @@ void place_bomb(Player *player)
   unsigned char locX = player->location_x;
   unsigned char locY = player->location_y;
   uint8_t canPlaceBomb = 1;
-
   for (uint8_t i = 0; i < ARRAY_SIZE(player->bomblist); i++)
     {
       if (player->bomblist[i].exploded == 0 && player->bomblist[i].location_x == locX && player->bomblist[i].location_y == locY)
@@ -410,11 +409,11 @@ void place_bomb(Player *player)
 /*
  * This function draws a bomb.
  */
-void draw_bomb(Player *player, MI0283QT9 lcd)
+void draw_bomb(MI0283QT9 lcd)
 {
   for (uint8_t i = 0; i < ARRAY_SIZE(player->bomblist); i++)
     {
-      if (player->bomblist[i].exploded != 1 && player->bomblist[i].isExploding != 1)
+      if (player->bomblist[i].exploded != 1 && player->bomblist[i].isExploding != 1 )
         {
           draw_object(lcd,player->bomblist[i].location_x*BLOCKSIZE,player->bomblist[i].location_y*BLOCKSIZE, bomb);
         }
@@ -422,9 +421,9 @@ void draw_bomb(Player *player, MI0283QT9 lcd)
 
   for (uint8_t i = 0; i < ARRAY_SIZE(opponent->bomblist); i++)
     {
-      if (opponent->bomblist[i].exploded != 1 && opponent->bomblist[i].isExploding != 1)
+      if (opponent->bomblist[i].exploded != 1 && opponent->bomblist[i].isExploding != 1 )
         {
-          draw_object(lcd,opponent->bomblist[i].location_x*BLOCKSIZE,opponent->bomblist[i].location_y*BLOCKSIZE, bomb);
+          draw_object(lcd,opponent->bomblist[i].location_x*BLOCKSIZE,opponent->bomblist[i].location_y*BLOCKSIZE, bomb);;
         }
     }
 }
@@ -581,19 +580,22 @@ void gameloop(Player *player, Player *opponent, MI0283QT9 lcd)
     {
       lcd.led(get_ADC());
       delay(10);
-      // struct buf *buffer;
       struct buf *buffer = (buf *)malloc(sizeof(struct buf));
       nunchuck_get_data(buffer);
       delay(90);
       check_if_bomb_has_to_explode(player, 0);
       check_if_bomb_has_to_explode(opponent, 1);
-      check_if_player_has_to_move(player, buffer);
+      check_if_player_has_to_move(buffer);
       updateOpponent();
       get_opponent_bombs();
+
+      // if player pressed the Z button, place a bomb
       if (buffer->zButton == 1)
         {
           place_bomb(player);
         }
+
+      // if player is dead, the game ends.
       if (player->lifes == 0 || opponent->lifes == 0)
         {
           stop_game();
@@ -603,7 +605,7 @@ void gameloop(Player *player, Player *opponent, MI0283QT9 lcd)
     }
 }
 
-void check_if_player_has_to_move(Player *player, struct buf *buffer)
+void check_if_player_has_to_move(struct buf *buffer)
 {
   /* Move Left if Joystick to left */
   if (check_if_joystick_left(buffer))
@@ -611,7 +613,6 @@ void check_if_player_has_to_move(Player *player, struct buf *buffer)
       //send position
       sendPlayerPos(player->location_x-1, player->location_y);
       move_left(player, lcd);
-      //check_if_player_in_bomb_explosion();
     }
   /* Move Right if Joystick to right */
   if (check_if_joystick_right(buffer))
@@ -619,7 +620,6 @@ void check_if_player_has_to_move(Player *player, struct buf *buffer)
       //send position
       sendPlayerPos(player->location_x+1, player->location_y);
       move_right(player, lcd);
-      //check_if_player_in_bomb_explosion();
     }
   /* Move Up if Joystick up */
   if (check_if_joystick_up(buffer))
@@ -627,7 +627,6 @@ void check_if_player_has_to_move(Player *player, struct buf *buffer)
       //send position
       sendPlayerPos(player->location_x, player->location_y-1);
       move_up(player, lcd);
-      //check_if_player_in_bomb_explosion();
     }
   /* Move Down if Joystick down */
   if (check_if_joystick_down(buffer))
@@ -635,7 +634,6 @@ void check_if_player_has_to_move(Player *player, struct buf *buffer)
       //send position
       sendPlayerPos(player->location_x, player->location_y+1);
       move_down(player, lcd);
-      //check_if_player_in_bomb_explosion();
     }
 }
 
@@ -733,7 +731,7 @@ void draw_player(Player *player, MI0283QT9 lcd)
  */
 void move_left(Player *player,MI0283QT9 lcd)
 {
-  draw_bomb(player, lcd);
+  draw_bomb(lcd);
   if (map_arr[player->location_y][player->location_x  - 1] == 'n')
     {
       if (map_arr[player->location_y-1][player->location_x] == 'w')
@@ -759,7 +757,7 @@ void move_left(Player *player,MI0283QT9 lcd)
  */
 void move_right(Player *player,MI0283QT9 lcd)
 {
-  draw_bomb(player, lcd);
+  draw_bomb(lcd);
   if (map_arr[player->location_y][player->location_x  + 1] == 'n')
     {
       if (map_arr[player->location_y-1][player->location_x] == 'w')
@@ -785,7 +783,7 @@ void move_right(Player *player,MI0283QT9 lcd)
  */
 void move_down(Player *player,MI0283QT9 lcd)
 {
-  draw_bomb(player, lcd);
+  draw_bomb(lcd);
   if (map_arr[player->location_y + 1][player->location_x] == 'n')
     {
       if (map_arr[player->location_y-1][player->location_x] == 'w')
@@ -811,7 +809,7 @@ void move_down(Player *player,MI0283QT9 lcd)
  */
 void move_up(Player *player,MI0283QT9 lcd)
 {
-  draw_bomb(player, lcd);
+  draw_bomb(lcd);
   if (map_arr[player->location_y - 1][player->location_x  ] == 'n')
     {
       if (map_arr[player->location_y-1][player->location_x] == 'w')

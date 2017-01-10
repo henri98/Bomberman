@@ -16,7 +16,7 @@
 #define NO_SIGNAL    4
 #define QUEUE_LENGTH 30
 
-void init_timer0();
+void init_timer1();
 void init_ir_receiver(Queue *bytesReceived, void (*callback)(void));
 void init_ir_sender(uint8_t wire, Queue *bytesToSend);
 void tryToDequeueByte();

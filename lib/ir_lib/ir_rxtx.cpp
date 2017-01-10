@@ -62,8 +62,8 @@ void EnqueueReceivedByte(unsigned char byte)
   callbackFunc();
 }
 
-//  Function to init Timer0
-void init_timer0()
+//  Function to init Timer1
+void init_timer1()
 {
   cli();
   TCCR1A |= (1 << WGM11);
