@@ -234,12 +234,15 @@ void menu()
 
 int compare( const void* a, const void* b)
 {
-     int int_a = * ( (int*) a );
-     int int_b = * ( (int*) b );
+  int int_a = *( (int*) a );
+  int int_b = *( (int*) b );
 
-     if ( int_a == int_b ) return 0;
-     else if ( int_a < int_b ) return 1;
-     else return -1;
+  if ( int_a == int_b )
+    return 0;
+  else if ( int_a < int_b )
+    return 1;
+  else
+    return -1;
 }
 
 void highscores()
@@ -255,47 +258,27 @@ void highscores()
   names[4] = "Copper";
   lcd.drawText(80, 25, "HIGHSCORES", white, RGB(0,0,0), 2);
   int highscores[5];
-
-
-
   for (size_t i = 0; i < 5; i++)
     {
-     highscores[i] = EEPROM_read_uint16_t(0 + (i * 2));
+      highscores[i] = EEPROM_read_uint16_t(0 + (i * 2));
     }
-
-
-
-    qsort(highscores, 5, sizeof(int), compare );
-
-
+  qsort(highscores, 5, sizeof(int), compare );
   for (size_t i = 0; i < 5; i++)
     {
       lcd.drawText(80, 80 + margin, names[i], white, RGB(0,0,0), 1);
-  //    lcd.drawText(200, 80 + margin, (char) test[i], white, RGB(0,0,0), 1);
       lcd.setCursor(200,80 + margin);
-
-
       lcd.setTextColor(white, black);
-
       lcd.println(highscores[i]);
-
-
-
-
       lcd.drawRect(60, 75 + margin, 200, 20, red);
       lcd.drawRect(59, 74 + margin, 200, 20, red);
-
       margin = margin + 30;
-
-
-
-
     }
   do
     {
       nunchuck_get_data(buffer);
       delay(5);
-  	  lcd.led(get_ADC());    }
+      lcd.led(get_ADC());
+    }
   while (buffer->zButton != 1);
   free(buffer);
 }
